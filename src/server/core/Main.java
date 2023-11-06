@@ -1,12 +1,7 @@
-package org.example;
+package server.core;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-
-
-import org.example.handler.ProgressHandler;
-import org.example.handler.RoleHandler;
-import org.example.role.Role;
 
 public class Main {
     public static void main(String[] args) {

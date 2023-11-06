@@ -1,4 +1,4 @@
-package org.example.role;
+package server.core.role;
 
 public class Role {
     public Calculator calculator1;

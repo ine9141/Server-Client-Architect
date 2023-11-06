@@ -1,6 +1,6 @@
-package org.example.handler;
+package server.core.handler;
 
-import org.example.role.Role;
+import server.core.role.Role;
 
 import java.util.ArrayList;
 import java.util.Collections;

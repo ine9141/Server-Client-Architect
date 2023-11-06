@@ -1,9 +1,9 @@
-package org.example.handler;
+package server.core.handler;
 
-import org.example.role.Calculator;
-import org.example.role.Role;
-import org.example.role.Provider;
-import org.example.role.Receiver;
+import server.core.role.Calculator;
+import server.core.role.Role;
+import server.core.role.Provider;
+import server.core.role.Receiver;
 
 public class ProgressHandler {
     Role[] client;

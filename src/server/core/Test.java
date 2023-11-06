@@ -1,8 +1,8 @@
-package org.example;
+package server.core;
 
-import org.example.handler.ProgressHandler;
-import org.example.handler.RoleHandler;
-import org.example.role.Role;
+import server.core.handler.ProgressHandler;
+import server.core.handler.RoleHandler;
+import server.core.role.Role;
 
 public class Test {
     public static void main(String[] args) {
