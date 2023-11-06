@@ -1,4 +1,4 @@
-package org.example.rule;
+package org.example.role;
 
 public class Provider {
     int[][][] matrix;

@@ -3,12 +3,12 @@ package org.example;
 
 import org.example.handler.ProgressHandler;
 import org.example.handler.RuleHandler;
-import org.example.rule.Client;
+import org.example.role.Role;
 
 public class Main {
     public static void main(String[] args) {
-        Client[] clients = new Client[4];
-        for(int i = 0; i < 4; i++)clients[i] = new Client();
+        Role[] clients = new Role[4];
+        for(int i = 0; i < 4; i++)clients[i] = new Role();
         RuleHandler ruleHandler = new RuleHandler();
         ruleHandler.setRule(clients);
 

@@ -1,6 +1,6 @@
-package org.example.rule;
+package org.example.role;
 
-public class Client {
+public class Role {
     public Calculator calculator1;
     public Calculator calculator2;
     public Provider provider;

@@ -1,4 +1,4 @@
-package org.example.rule;
+package org.example.role;
 
 public class Calculator {
     public int calculate(int a, int b){

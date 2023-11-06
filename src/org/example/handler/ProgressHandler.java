@@ -1,17 +1,17 @@
 package org.example.handler;
 
-import org.example.rule.Calculator;
-import org.example.rule.Client;
-import org.example.rule.Provider;
-import org.example.rule.Receiver;
+import org.example.role.Calculator;
+import org.example.role.Role;
+import org.example.role.Provider;
+import org.example.role.Receiver;
 
 public class ProgressHandler {
-    Client[] client;
+    Role[] client;
     Calculator calculator1;
     Calculator calculator2;
     Receiver receiver;
     Provider provider;
-    public ProgressHandler(Client[] client){
+    public ProgressHandler(Role[] client){
         this.client = client;
         for(int i = 0; i < 4; i++){
             //calc1 = 0 calc2 = 1 receiver = 2 provider = 3

@@ -1,6 +1,6 @@
 package org.example.handler;
 
-import org.example.rule.Client;
+import org.example.role.Role;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -8,7 +8,7 @@ import java.util.List;
 
 public class RuleHandler {
     //통신으로 들어온 순서대로 Cleint 배열에 위치시킨 후 역할 분배
-    public void setRule(Client[] clients){
+    public void setRule(Role[] clients){
         List<Integer> list = new ArrayList<>();
         for (int i = 1; i <= 4; i++) {
             list.add(i);
