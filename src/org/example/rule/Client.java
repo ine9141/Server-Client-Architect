@@ -1,10 +1,10 @@
 package org.example.rule;
 
 public class Client {
-    public static Calculator calculator1;
-    public static Calculator calculator2;
-    public static Provider provider;
-    public static Receiver receiver;
+    public Calculator calculator1;
+    public Calculator calculator2;
+    public Provider provider;
+    public Receiver receiver;
     int rule;
     public void isCalculator1(){
         rule = 0;

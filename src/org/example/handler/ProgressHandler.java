@@ -15,11 +15,20 @@ public class ProgressHandler {
         this.client = client;
         for(int i = 0; i < 4; i++){
             //calc1 = 0 calc2 = 1 receiver = 2 provider = 3
-            if(client[i].getRule() == 0)calculator1 = client[i].getCalculator1();
-            if(client[i].getRule() == 1)calculator2 = client[i].getCalculator2();
-            if(client[i].getRule() == 2)receiver = client[i].getReceiver();
-            if(client[i].getRule() == 3)provider = client[i].getProvider();
+            if(client[i].getRule() == 0){
+                calculator1 = client[i].getCalculator1();
+            }
+            else if(client[i].getRule() == 1){
+                calculator2 = client[i].getCalculator2();
+            }
+            else if(client[i].getRule() == 2){
+                receiver = client[i].getReceiver();
+            }
+            else if(client[i].getRule() == 3){
+                provider = client[i].getProvider();
+            }
         }
+        receiver.externalMatrix = provider.getMatrix();
     }
 
     public void run(){
