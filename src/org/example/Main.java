@@ -2,27 +2,16 @@ package org.example;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketException;
 
 
 import org.example.handler.ProgressHandler;
-import org.example.handler.RuleHandler;
+import org.example.handler.RoleHandler;
 import org.example.role.Role;
 
 public class Main {
     public static void main(String[] args) {
-<<<<<<< HEAD:src/org/example/Main.java
-        Role[] clients = new Role[4];
-        for(int i = 0; i < 4; i++)clients[i] = new Role();
-        RuleHandler ruleHandler = new RuleHandler();
-        ruleHandler.setRule(clients);
-
-        ProgressHandler progressHandler = new ProgressHandler(clients);
-        progressHandler.run();
-=======
         Main hahaServer = new Main();
         hahaServer.start();
->>>>>>> abecf4d... 서버와 클라이언트 메시지 주고 받기:src/main/java/org/example/Main.java
     }
 
     public void start() {
