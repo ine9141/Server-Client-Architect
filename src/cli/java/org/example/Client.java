@@ -18,7 +18,6 @@ public class Client {
             int answer = 0;
             int sys_clock = 0;
             String mode;
-            String select_calc;
             socket = new Socket("localhost", 23921);
             System.out.println("[서버에 접속 성공]");
 
@@ -71,18 +70,24 @@ public class Client {
                 }
 
                 //if role is matrix transmission
-                else{
+                else {
                     int[] send_array = new int[10];
                     int line = (int)(Math.random()*10);
-                    if (mode.equals("matrix1")) for (int row = 0; row < MAX_row; row++) send_array[row] = matrix[line][row];
-                    else if (mode.equals("matrix2")) for (int col = 0; col < MAX_column; col++) send_array[col] = matrix[col][line];
-                    if ((int)(Math.random()*10)<5) select_calc = "calc1";
-                    else select_calc = "calc2";
+                    if (mode.equals("matrix1")) {
+                        mode = "row";
+                        for (int row = 0; row < MAX_row; row++) send_array[row] = matrix[line][row];
+                    }
+                    else if (mode.equals("matrix2")) {
+                        mode = "col";
+                        for (int col = 0; col < MAX_column; col++) send_array[col] = matrix[col][line];
+                    }
 
-                    bufferedWriter.write(select_calc);
+                    bufferedWriter.write(mode);
                     bufferedWriter.newLine();
                     bufferedWriter.flush();
-
+                    bufferedWriter.write(Integer.toString(line));
+                    bufferedWriter.newLine();
+                    bufferedWriter.flush();
                     objectOutput.writeObject(send_array);
                 }
             }
