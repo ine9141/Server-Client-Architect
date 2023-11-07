@@ -3,6 +3,7 @@ package cli.java.org.example;
 import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.Scanner;
 
 public class Client {
@@ -28,32 +29,36 @@ public class Client {
 
             while (true) {
 
+                mode = reader.readLine();
+
                 //new round start
                 //1. 배열 초기화
-                for(int row = 0 ; row < MAX_row ; row++) {
-                    for(int col = 0 ; col < MAX_column ; col++) {
-                        matrix[row][col] = (int)(Math.random()*100);
+                if(mode.equals("new round")){
+                    for(int row = 0 ; row < MAX_row ; row++) {
+                        for(int col = 0 ; col < MAX_column ; col++) {
+                            matrix[row][col] = (int)(Math.random()*100);
+                        }
                     }
                 }
 
-                mode = reader.readLine();
 
                 //role setting
                 //if role is matrix calc
-                if (mode.equals("calc")) {
+                else if (mode.equals("calc")) {
                     int[] sended_row = new int[10];
                     int[] sended_col = new int[10];
                     boolean row_flag = false, col_flag = false;
                     while (true){
                         String mat_num = reader.readLine();
-                        if (mat_num == "matrix1") {
+                        if (Objects.equals(mat_num, "row")) {
                             sended_row = (int[]) objectInput.readObject();
                             row_flag = true;
                         }
-                        else if (mat_num == "matrix2") {
+                        else if (Objects.equals(mat_num, "cal")) {
                             sended_col = (int[]) objectInput.readObject();
                             col_flag = true;
                         }
+                        else break;
 
                         if (row_flag && col_flag) break;
                     }
@@ -69,18 +74,23 @@ public class Client {
                     bufferedWriter.flush();
                 }
 
+                //role setting
                 //if role is matrix transmission
                 else {
                     int[] send_array = new int[10];
                     int line = (int)(Math.random()*10);
+
                     if (mode.equals("matrix1")) {
                         mode = "row";
                         for (int row = 0; row < MAX_row; row++) send_array[row] = matrix[line][row];
                     }
+
                     else if (mode.equals("matrix2")) {
                         mode = "col";
                         for (int col = 0; col < MAX_column; col++) send_array[col] = matrix[col][line];
                     }
+
+                    else break;
 
                     bufferedWriter.write(mode);
                     bufferedWriter.newLine();
