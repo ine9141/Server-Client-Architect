@@ -4,6 +4,9 @@ public class MatrixHandler {
 
     private static int[][][] maxtrix = new int[6][10][10];
 
+    // 필요할지 모르겠지만 모든 행렬에 계산 값이 들어갔는지 boolean으로 체크 (계산값이0이면 계산결과인지 아직 계산 전인지 모르기때문)
+    private static boolean[][][] visit = new boolean[6][10][10];
+
     // 행렬 생성
     public static void createMatrix() {
         maxtrix = new int[6][10][10];
