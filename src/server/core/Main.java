@@ -68,33 +68,27 @@ public class Main {
                 while(true) {
                     objectOutput.writeObject("new round"); //이게 클라이언트한테 명령하는 느낌
 
-
-                    objectOutput.writeObject("matrix1");
-                    String mode1 = (String) objectInput.readObject();
+                    //차례대로 행 입력
+                    objectOutput.writeObject("matrix");
+                    objectOutput.writeObject("row");
                     int line1 = (int) objectInput.readObject();
                     int[] matrix1 = (int[]) objectInput.readObject();
 
+                    //열 입력
+                    objectOutput.writeObject("matrix");
+                    objectOutput.writeObject("col");
+                    int line2 = (int) objectInput.readObject();
+                    int[] matrix2 = (int[]) objectInput.readObject();
 
-//                    objectOutput.writeObject("matrix2");
-//                    String mode2 = (String) objectInput.readObject();
-//                    int line2 = (int) objectInput.readObject();
-//                    int[] matrix2 = (int[]) objectInput.readObject();
-//
-//                    objectOutput.writeObject("calc");
-//
-//                    objectOutput.writeObject("row");
-//                    objectOutput.writeObject(matrix1);
-//
-//                    objectOutput.writeObject("cal");
-//                    objectOutput.writeObject(matrix2);
-//
-//                    int answer = (int) objectInput.readObject();
-//
-//                    matrix[line1][line2] = answer;
-//
-//                    System.out.println(matrix[line1][line2]);
-                    break;
+                    objectOutput.writeObject("calc");
+                    objectOutput.writeObject(matrix1);
+                    objectOutput.writeObject(matrix2);
 
+                    int answer = (int) objectInput.readObject();
+
+                    matrix[line1][line2] = answer;
+
+                    System.out.println(matrix[line1][line2]);
                 }
 
             } catch (IOException e) {

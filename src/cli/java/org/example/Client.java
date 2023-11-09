@@ -10,13 +10,39 @@ public class Client {
     public static final int MAX_row = 10;
     public static final int MAX_column = 10;
 
+    public void reset(int[][] matrix){
+        for(int row = 0 ; row < MAX_row ; row++) {
+            for(int col = 0 ; col < MAX_column ; col++) {
+                matrix[row][col] = (int)(Math.random()*100);
+            }
+        }
+        System.out.println("matrix reset clear");
+    }
+
+    public int calc(int[] sended_row, int[] sended_col){
+        int answer = 0;
+
+        for (int index = 0; index < 10; index++) {
+            answer += sended_row[index] * sended_col[index];
+        }
+        return answer;
+    }
+
+    public int[] array(String mode, int[][] matrix, int line){
+
+        int[] send_array = new int[10];
+
+        if (mode.equals("row")) for (int row = 0; row < MAX_row; row++) send_array[row] = matrix[line][row];
+        else if (mode.equals("col")) for (int col = 0; col < MAX_column; col++) send_array[col] = matrix[col][line];
+
+        return send_array;
+    }
 
     public void start() throws IOException {
         Socket socket = null;
         try {
             Scanner scanner = new Scanner(System.in);
             int[][] matrix = new int[10][10];
-            int answer = 0;
             int sys_clock = 0;
             String mode = null;
             socket = new Socket("localhost", 23921);
@@ -28,80 +54,37 @@ public class Client {
             while (true) {
 
                 mode = (String) objectInput.readObject();
+
                 //new round start
                 //1. 배열 초기화
-                if(mode.equals("new round")){
-                    for(int row = 0 ; row < MAX_row ; row++) {
-                        for(int col = 0 ; col < MAX_column ; col++) {
-                            matrix[row][col] = (int)(Math.random()*100);
-                        }
-                    }
-                    System.out.println("matrix reset clear");
-                }
+                if (mode.equals("new round")) reset(matrix);
 
-
-                //role setting
-                //if role is matrix calc
+                    //2. 행렬 곱
                 else if (mode.equals("calc")) {
-                    int[] sended_row = new int[10];
-                    int[] sended_col = new int[10];
-                    boolean row_flag = false, col_flag = false;
-                    while (true){
-                        String mat_num = (String) objectInput.readObject();
-                        if (Objects.equals(mat_num, "row")) {
-                            sended_row = (int[]) objectInput.readObject();
-                            row_flag = true;
-                        }
-                        else if (Objects.equals(mat_num, "cal")) {
-                            sended_col = (int[]) objectInput.readObject();
-                            col_flag = true;
-                        }
-                        else break;
-
-                        if (row_flag && col_flag) break;
-                    }
-
-                    for (int row = 0; row < MAX_row; row++) {
-                        for (int col = 0; col < MAX_column; col++) {
-                            answer += sended_row[row] * sended_col[col];
-                        }
-                    }
-
+                    int answer = calc((int[]) objectInput.readObject(), (int[]) objectInput.readObject());
                     objectOutput.writeObject(answer);
+                    System.out.println("answer : "+ answer );
                 }
 
-                //role setting
-                //if role is matrix transmission
-                else if(mode.equals("matrix1") || mode.equals("matrix2")){
-                    int[] send_array = new int[10];
+                    //3. 행렬 전달
+                else if (mode.equals("matrix")) {
                     int line = (int)(Math.random()*10);
+                    int[] send_array = array((String) objectInput.readObject(), matrix, line);
 
-                    if (mode.equals("matrix1")) {
-                        mode = "row";
-                        for (int row = 0; row < MAX_row; row++) send_array[row] = matrix[line][row];
-                    }
-
-                    else {
-                        mode = "col";
-                        for (int col = 0; col < MAX_column; col++) send_array[col] = matrix[col][line];
-                    }
-
-                    objectOutput.writeObject(mode);
                     objectOutput.writeObject(line);
                     objectOutput.writeObject(send_array);
-                    System.out.println(mode);
-                    System.out.println(line);
-                    System.out.println(Arrays.toString(send_array));
 
-
+                    System.out.println("line : " + line);
+                    System.out.println("array : " + Arrays.toString(send_array));
                 }
             }
+
         } catch (IOException e) {
             e.printStackTrace();
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         } finally {
-            socket.close();
+            Objects.requireNonNull(socket).close();
         }
     }
 
