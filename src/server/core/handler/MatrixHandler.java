@@ -12,6 +12,11 @@ public class MatrixHandler {
         maxtrix = new int[6][10][10];
     }
 
+    // visit 초기화
+    public static void createVisit() {
+        visit = new boolean[6][10][10];
+    }
+
     // 현재 모든 행렬 및 시간 찍기
     public static String printMatrix(int round, int time) {
 
