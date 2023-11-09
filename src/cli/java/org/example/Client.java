@@ -53,29 +53,37 @@ public class Client {
 
             while (true) {
 
-                mode = (String) objectInput.readObject();
+                mode = objectInput.readObject().toString();
 
                 //new round start
                 //1. 배열 초기화
-                if (mode.equals("new round")) reset(matrix);
+                if (mode.equals("0")) reset(matrix);
 
-                    //2. 행렬 곱
-                else if (mode.equals("calc")) {
-                    int answer = calc((int[]) objectInput.readObject(), (int[]) objectInput.readObject());
-                    objectOutput.writeObject(answer);
-                    System.out.println("answer : "+ answer );
-                }
-
-                    //3. 행렬 전달
-                else if (mode.equals("matrix")) {
+                else if (mode.equals("1")) {
                     int line = (int)(Math.random()*10);
-                    int[] send_array = array((String) objectInput.readObject(), matrix, line);
+                    int[] send_array = array("row", matrix, line);
 
                     objectOutput.writeObject(line);
                     objectOutput.writeObject(send_array);
 
-                    System.out.println("line : " + line);
+                    System.out.println("line(row) : " + line);
                     System.out.println("array : " + Arrays.toString(send_array));
+                }
+                else if(mode.equals("2")){
+                    int line = (int)(Math.random()*10);
+                    int[] send_array = array("col", matrix, line);
+
+                    objectOutput.writeObject(line);
+                    objectOutput.writeObject(send_array);
+
+                    System.out.println("line(col) : " + line);
+                    System.out.println("array : " + Arrays.toString(send_array));
+                }
+
+                else if (mode.equals("3")) {
+                    int answer = calc((int[]) objectInput.readObject(), (int[]) objectInput.readObject());
+                    objectOutput.writeObject(answer);
+                    System.out.println("answer : "+ answer );
                 }
             }
 
