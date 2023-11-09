@@ -66,21 +66,19 @@ public class Main {
                 ObjectInputStream objectInput = new ObjectInputStream(socket.getInputStream());
 
                 while(true) {
-                    objectOutput.writeObject("new round"); //이게 클라이언트한테 명령하는 느낌
+                    objectOutput.writeObject(new Instruction(true,false,false)); //이게 클라이언트한테 명령하는 느낌
 
                     //차례대로 행 입력
-                    objectOutput.writeObject("matrix");
-                    objectOutput.writeObject("row");
+                    objectOutput.writeObject(new Instruction(false,true,true));
                     int line1 = (int) objectInput.readObject();
                     int[] matrix1 = (int[]) objectInput.readObject();
 
                     //열 입력
-                    objectOutput.writeObject("matrix");
-                    objectOutput.writeObject("col");
+                    objectOutput.writeObject(new Instruction(false, true, false));
                     int line2 = (int) objectInput.readObject();
                     int[] matrix2 = (int[]) objectInput.readObject();
 
-                    objectOutput.writeObject("calc");
+                    objectOutput.writeObject(new Instruction(false,false,false));
                     objectOutput.writeObject(matrix1);
                     objectOutput.writeObject(matrix2);
 
