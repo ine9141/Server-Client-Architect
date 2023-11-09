@@ -2,11 +2,14 @@ package server.core;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Arrays;
 
 public class Main {
     public static void main(String[] args) {
         Main hahaServer = new Main();
         hahaServer.start();
+
+
     }
 
     public void start() {
@@ -56,31 +59,48 @@ public class Main {
         public void run() {
             String clientIP = null;
             try {
+                int[][] matrix = new int[10][10];
 
                 clientIP = socket.getRemoteSocketAddress().toString();
+                ObjectOutputStream objectOutput = new ObjectOutputStream(socket.getOutputStream());
+                ObjectInputStream objectInput = new ObjectInputStream(socket.getInputStream());
 
                 while(true) {
-                    // 메시지 받기
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                    String receiveMsg = reader.readLine();
-                    if(receiveMsg != null)
-                        System.out.println("receiveMsg = " + receiveMsg);
+                    objectOutput.writeObject("new round"); //이게 클라이언트한테 명령하는 느낌
 
-                    // 메시지 보내기
-                    BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-                    String message = "안녕하세요, 서버입니다.";
-                    writer.write(message);
-                    writer.newLine();
-                    writer.flush();
+
+                    objectOutput.writeObject("matrix1");
+                    String mode1 = (String) objectInput.readObject();
+                    int line1 = (int) objectInput.readObject();
+                    int[] matrix1 = (int[]) objectInput.readObject();
+
+
+//                    objectOutput.writeObject("matrix2");
+//                    String mode2 = (String) objectInput.readObject();
+//                    int line2 = (int) objectInput.readObject();
+//                    int[] matrix2 = (int[]) objectInput.readObject();
+//
+//                    objectOutput.writeObject("calc");
+//
+//                    objectOutput.writeObject("row");
+//                    objectOutput.writeObject(matrix1);
+//
+//                    objectOutput.writeObject("cal");
+//                    objectOutput.writeObject(matrix2);
+//
+//                    int answer = (int) objectInput.readObject();
+//
+//                    matrix[line1][line2] = answer;
+//
+//                    System.out.println(matrix[line1][line2]);
+                    break;
+
                 }
-
-                //writer.close();
-                //reader.close();
-                //socket.close();
-                //serverSocket.close();
 
             } catch (IOException e) {
 
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException(e);
             } finally {
                 try {
                     serverSocket.close();

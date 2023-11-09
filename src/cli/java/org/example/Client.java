@@ -2,7 +2,7 @@ package cli.java.org.example;
 
 import java.io.*;
 import java.net.Socket;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.Scanner;
 
@@ -18,19 +18,16 @@ public class Client {
             int[][] matrix = new int[10][10];
             int answer = 0;
             int sys_clock = 0;
-            String mode;
+            String mode = null;
             socket = new Socket("localhost", 23921);
             System.out.println("[서버에 접속 성공]");
 
-            BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-            BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             ObjectOutputStream objectOutput = new ObjectOutputStream(socket.getOutputStream());
             ObjectInputStream objectInput = new ObjectInputStream(socket.getInputStream());
 
             while (true) {
 
-                mode = reader.readLine();
-
+                mode = (String) objectInput.readObject();
                 //new round start
                 //1. 배열 초기화
                 if(mode.equals("new round")){
@@ -39,6 +36,7 @@ public class Client {
                             matrix[row][col] = (int)(Math.random()*100);
                         }
                     }
+                    System.out.println("matrix reset clear");
                 }
 
 
@@ -49,7 +47,7 @@ public class Client {
                     int[] sended_col = new int[10];
                     boolean row_flag = false, col_flag = false;
                     while (true){
-                        String mat_num = reader.readLine();
+                        String mat_num = (String) objectInput.readObject();
                         if (Objects.equals(mat_num, "row")) {
                             sended_row = (int[]) objectInput.readObject();
                             row_flag = true;
@@ -69,14 +67,12 @@ public class Client {
                         }
                     }
 
-                    bufferedWriter.write(Integer.toString(answer));
-                    bufferedWriter.newLine();
-                    bufferedWriter.flush();
+                    objectOutput.writeObject(answer);
                 }
 
                 //role setting
                 //if role is matrix transmission
-                else {
+                else if(mode.equals("matrix1") || mode.equals("matrix2")){
                     int[] send_array = new int[10];
                     int line = (int)(Math.random()*10);
 
@@ -85,20 +81,19 @@ public class Client {
                         for (int row = 0; row < MAX_row; row++) send_array[row] = matrix[line][row];
                     }
 
-                    else if (mode.equals("matrix2")) {
+                    else {
                         mode = "col";
                         for (int col = 0; col < MAX_column; col++) send_array[col] = matrix[col][line];
                     }
 
-                    else break;
-
-                    bufferedWriter.write(mode);
-                    bufferedWriter.newLine();
-                    bufferedWriter.flush();
-                    bufferedWriter.write(Integer.toString(line));
-                    bufferedWriter.newLine();
-                    bufferedWriter.flush();
+                    objectOutput.writeObject(mode);
+                    objectOutput.writeObject(line);
                     objectOutput.writeObject(send_array);
+                    System.out.println(mode);
+                    System.out.println(line);
+                    System.out.println(Arrays.toString(send_array));
+
+
                 }
             }
         } catch (IOException e) {
@@ -115,16 +110,3 @@ public class Client {
         hahaClient.start();
     }
 }
-
-
-//                // 클라이언트에서 서버로 메시지 보내기
-//                System.out.print("보낼 메시지를 입력하세요 :");
-//                String outputMessage = scanner.nextLine();
-//                bufferedWriter.write(outputMessage);
-//                bufferedWriter.newLine();
-//                bufferedWriter.flush();
-//
-//                // 서버로부터 응답을 받습니다.
-//                System.out.println("메시지 받기 대기중...");
-//                BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-//                String inputMessage = reader.readLine(); // 서버에서의 응답을 읽음
