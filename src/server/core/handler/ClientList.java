@@ -13,6 +13,9 @@ public class ClientList {
     // i번째 수행할 쌍의 번호 (AB:0 AC:1, ...)
     private static int[] orderSequence = new int[6];
 
+    //현재 실행중인(실행해야할) orderSequence의 위치
+    private static int curOrder = 0;
+
     public static void addClient(Socket socket) {
         clients.put(socket, getClientSize());
     }
