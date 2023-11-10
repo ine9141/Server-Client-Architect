@@ -52,9 +52,11 @@ public class Client {
             ObjectInputStream objectInput = new ObjectInputStream(socket.getInputStream());
 
             while (true) {
-
-                mode = objectInput.readObject().toString();
-
+                try{
+                    mode = objectInput.readObject().toString();
+                } catch(EOFException e){
+                    continue;
+                }
                 //new round start
                 //1. 배열 초기화
                 if (mode.equals("0")) reset(matrix);

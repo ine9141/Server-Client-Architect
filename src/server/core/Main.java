@@ -87,6 +87,7 @@ public class Main {
                     matrix[line1][line2] = answer;
 
                     System.out.println(matrix[line1][line2]);
+                    break;
                 }
 
             } catch (IOException e) {
