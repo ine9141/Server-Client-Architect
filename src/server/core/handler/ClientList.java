@@ -2,7 +2,7 @@ package server.core.handler;
 
 import java.net.Socket;
 
-public class Clients {
+public class ClientList {
     private static Socket[] clients = new Socket[4];
     private static String[] Role = new String[4];
     // row_mat, col_mat / calc1, calc2
