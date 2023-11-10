@@ -1,15 +1,17 @@
 package server.core.handler;
 
 import java.net.Socket;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ClientList {
-    private static Socket[] clients = new Socket[4];
+    private static Map<Socket, Integer> clients = new HashMap<>();
     private static String[] Role = new String[4];
     // row_mat, col_mat / calc1, calc2
     private static int clientSize = 0;
 
-    public void addClient(Socket socket) {
-        clients[clientSize++] = socket;
+    public static void addClient(Socket socket) {
+        clients.put(socket, getClientSize());
     }
 
     // 역할 랜덤 배정
@@ -30,8 +32,8 @@ public class ClientList {
         }
     }
 
-    public static Socket[] getClients() {
-        return clients;
+    public static int getClients(Socket socket) {
+        return clients.get(socket);
     }
 
     public static int getClientSize() {

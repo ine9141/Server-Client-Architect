@@ -1,5 +1,6 @@
 package server.core;
 import server.core.handler.ClientHandler;
+import server.core.handler.ClientList;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -23,6 +24,7 @@ public class Main {
             while (true) {
                 System.out.println("[Server] 클라이언트 연결 대기중...");
                 Socket socket = serverSocket.accept();
+                ClientList.addClient(socket);
                 System.out.println("[Server] " + socket.getRemoteSocketAddress().toString() + " 클라이언트 연결 완료.");
                 ClientHandler clientHandler = new ClientHandler(socket, serverSocket);
                 Thread thread = new Thread(clientHandler);
