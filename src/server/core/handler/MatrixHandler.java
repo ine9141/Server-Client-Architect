@@ -1,5 +1,7 @@
 package server.core.handler;
 
+import server.core.ClientList;
+
 public class MatrixHandler {
 
     private static int[][][] maxtrix = new int[6][10][10];

@@ -1,11 +1,9 @@
 package server.core;
 import server.core.handler.ClientHandler;
-import server.core.handler.ClientList;
 
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Arrays;
 
 public class Main {
     public static void main(String[] args) {
