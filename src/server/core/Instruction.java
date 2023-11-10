@@ -10,7 +10,7 @@ public class Instruction implements Serializable {
     //matrix + column = 2
     //calculation = 3
 
-    public Instruction(boolean isNewRound, boolean isMatrix, boolean isRow) {
+    public Instruction(boolean isNewRound, boolean isMatrix, boolean isRow, boolean isCalc) {
 
         if(isNewRound){
             mode = 0;
@@ -23,7 +23,7 @@ public class Instruction implements Serializable {
                 mode = 2;
             }
         }
-        else mode = 3;
+        else if(isCalc) mode = 3;
     }
 
     public String toString(){

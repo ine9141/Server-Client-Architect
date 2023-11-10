@@ -30,19 +30,19 @@ public class ClientHandler implements Runnable {
             ObjectInputStream objectInput = new ObjectInputStream(socket.getInputStream());
 
             while(true) {
-                objectOutput.writeObject(new Instruction(true,false,false)); //이게 클라이언트한테 명령하는 느낌
+                objectOutput.writeObject(new Instruction(true,false,false, false)); //새 라운드 시작
 
                 //차례대로 행 입력
-                objectOutput.writeObject(new Instruction(false,true,true));
+                objectOutput.writeObject(new Instruction(false,true,true, false));
                 int line1 = (int) objectInput.readObject();
                 int[] matrix1 = (int[]) objectInput.readObject();
 
                 //열 입력
-                objectOutput.writeObject(new Instruction(false, true, false));
+                objectOutput.writeObject(new Instruction(false, true, false, false));
                 int line2 = (int) objectInput.readObject();
                 int[] matrix2 = (int[]) objectInput.readObject();
 
-                objectOutput.writeObject(new Instruction(false,false,false));
+                objectOutput.writeObject(new Instruction(false,false,false, true));
                 objectOutput.writeObject(matrix1);
                 objectOutput.writeObject(matrix2);
 
@@ -51,7 +51,6 @@ public class ClientHandler implements Runnable {
                 matrix[line1][line2] = answer;
 
                 System.out.println(matrix[line1][line2]);
-                break;
             }
 
         } catch (IOException e) {
