@@ -7,6 +7,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.sql.Time;
 
 public class ClientHandler implements Runnable {
 
@@ -29,22 +30,36 @@ public class ClientHandler implements Runnable {
             ObjectOutputStream objectOutput = new ObjectOutputStream(socket.getOutputStream());
             ObjectInputStream objectInput = new ObjectInputStream(socket.getInputStream());
 
+            int clientNum = ClientList.getClients(socket);
+            LogHandler logHandler = new LogHandler(clientNum);
             while(true) {
                 objectOutput.writeObject(new Instruction(true,false,false, false)); //새 라운드 시작
+                TimeHandler.addTime(ClientList.getClients(socket));
+                logHandler.clientLog("[Client" + clientNum + "] New Round 수행\n");
+                LogHandler.serverLog("[Client" + clientNum + "] New Round 수행. Server Time : " + TimeHandler.getClientTime(clientNum) + "\n");
 
                 //차례대로 행 입력
                 objectOutput.writeObject(new Instruction(false,true,true, false));
                 int line1 = (int) objectInput.readObject();
                 int[] matrix1 = (int[]) objectInput.readObject();
+                TimeHandler.addTime(ClientList.getClients(socket));
+                logHandler.clientLog("[Client" + clientNum + "] Get Matrix Row 수행\n");
+                LogHandler.serverLog("[Client" + clientNum + "] Get Matrix Row 수행. Server Time : " + TimeHandler.getClientTime(clientNum) + "\n");
 
                 //열 입력
                 objectOutput.writeObject(new Instruction(false, true, false, false));
                 int line2 = (int) objectInput.readObject();
                 int[] matrix2 = (int[]) objectInput.readObject();
+                TimeHandler.addTime(ClientList.getClients(socket));
+                logHandler.clientLog("[Client" + clientNum + "] Get Matrix Column 수행\n");
+                LogHandler.serverLog("[Client" + clientNum + "] Get Matrix Column 수행. Server Time : " + TimeHandler.getClientTime(clientNum) + "\n");
 
                 objectOutput.writeObject(new Instruction(false,false,false, true));
                 objectOutput.writeObject(matrix1);
                 objectOutput.writeObject(matrix2);
+                TimeHandler.addTime(ClientList.getClients(socket));
+                logHandler.clientLog("[Client" + clientNum + "] Calculation 수행\n");
+                LogHandler.serverLog("[Client" + clientNum + "] Calculation 수행. Server Time : " + TimeHandler.getClientTime(clientNum) + "\n");
 
                 int answer = (int) objectInput.readObject();
 
