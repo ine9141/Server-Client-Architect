@@ -73,6 +73,17 @@ public class ClientList {
         }
     }
 
+    public void initCurOrder() {
+        curOrder=0;
+    }
+
+    public static int getCurOrder() {
+        return curOrder;
+    }
+
+    public static int[] getOrderSequence() {
+        return orderSequence;
+    }
 
     public static int getClients(Socket socket) {
         return clients.get(socket);
