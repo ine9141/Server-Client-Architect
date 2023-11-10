@@ -1,5 +1,6 @@
 package server.core.handler;
 
+import java.io.IOException;
 import java.net.Socket;
 
 public class ClientList {
@@ -113,6 +114,16 @@ public class ClientList {
             }
 
         }
+    }
+
+    // 연결된 클라이언트들 끊기 (종료 로그 찍을때 활용)
+    public static void disconnectClients() throws IOException {
+
+        // i번째 클라이언트 종료
+        for(int i=0; i<4; i++) {
+            clients[i].close();
+        }
+
     }
 
     public static Socket[] getClients() {
