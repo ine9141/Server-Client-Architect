@@ -15,6 +15,13 @@ public class MatrixHandler {
     // visit 초기화
     public static void createVisit() {
         visit = new boolean[6][10][10];
+        for(int i=0; i<6; i++) {
+            for(int j=0; j<10; j++) {
+                for(int k=0; k<10; k++) {
+                    visit[i][j][k] = false;
+                }
+            }
+        }
     }
 
     // 현재 모든 행렬 및 시간 찍기
