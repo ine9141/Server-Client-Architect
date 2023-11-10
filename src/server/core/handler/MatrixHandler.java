@@ -44,6 +44,12 @@ public class MatrixHandler {
         return string;
     }
 
+    public static void saveResult(int line1, int line2, int result) {
+        // [현재 실행중인 순서쌍의 번호][행][열]
+        int[] orderSequence = ClientList.getOrderSequence();
+        int curOrder = ClientList.getCurOrder();
+        maxtrix[orderSequence[curOrder]][line1][line2] = result;
+    }
     public static int[][][] getMaxtrix() {
         return maxtrix;
     }
