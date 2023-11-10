@@ -10,6 +10,9 @@ public class ClientList {
     // row_mat, col_mat / calc1, calc2
     private static int clientSize = 0;
 
+    // i번째 수행할 쌍의 번호 (AB:0 AC:1, ...)
+    private static int[] orderSequence = new int[6];
+
     public static void addClient(Socket socket) {
         clients.put(socket, getClientSize());
     }
