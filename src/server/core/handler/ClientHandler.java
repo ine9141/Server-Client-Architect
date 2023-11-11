@@ -17,12 +17,11 @@ public class ClientHandler implements Runnable {//소켓 접속 때 마다 하�
 
     private static int[][] matrix = new int[10][10];
     private static int checkedCell = 0;
-    private static Integer[] row_check = {0,1,2,3,4,5,6,7,8,9};
-    private static Integer[] col_check = {0,1,2,3,4,5,6,7,8,9};
     private static String[] role = new String[4];
     private static int[] row = new int[10];
     private static int[] column = new int[10];
     private static int xPos, yPos;
+    private static int row_flag,  col_flag;
     private int clientNum;
 
     private static boolean rowReady = false, columnReady = false;
@@ -59,9 +58,11 @@ public class ClientHandler implements Runnable {//소켓 접속 때 마다 하�
                 synchronized (lock){
                     if(clientNum == 0){
                         //차례대로 행 입력
-
                         objectOutput.writeObject(new Instruction(false,true,true, false));
-                        objectOutput.writeObject(row_check);
+                        int line;
+                        if(row_flag != -1) line = row_flag;
+                        else line = (int)(Math.random()*10);
+                        objectOutput.writeObject(line);
                         xPos = (int) objectInput.readObject();
                         row = (int[]) objectInput.readObject();
                         TimeHandler.addTime(ClientList.getClients(socket));
@@ -75,7 +76,10 @@ public class ClientHandler implements Runnable {//소켓 접속 때 마다 하�
                     if(clientNum == 1){
                         //열 입력
                         objectOutput.writeObject(new Instruction(false, true, false, false));
-                        objectOutput.writeObject(col_check);
+                        int line;
+                        if(col_flag != -1) line = col_flag;
+                        else line = (int)(Math.random()*10);
+                        objectOutput.writeObject(line);
                         yPos = (int) objectInput.readObject();
                         column = (int[]) objectInput.readObject();
                         TimeHandler.addTime(ClientList.getClients(socket));
@@ -98,6 +102,10 @@ public class ClientHandler implements Runnable {//소켓 접속 때 마다 하�
 
 
                             if(matrix[xPos][yPos] == -1){
+                                if (xPos == row_flag && yPos == col_flag){
+                                    row_flag = -1;
+                                    col_flag = -1;
+                                }
                                 System.out.println("행렬에 값 저장");
                                 int answer = (int) objectInput.readObject();
                                 matrix[xPos][yPos] = answer;
@@ -110,22 +118,27 @@ public class ClientHandler implements Runnable {//소켓 접속 때 마다 하�
                                     }
                                     System.out.println();
                                 }
-                            }
-
-
-                            HashSet<Integer> hashSetX = new HashSet<>();
-                            HashSet<Integer> hashSetY = new HashSet<>();
-                            for (int i = 0; i < 10; i++){
-                                for (int j = 0; j < 10; j++){
-                                    if (matrix[i][j] == -1) {
-                                        hashSetX.add(i);
-                                        hashSetY.add(j);
+                            } else{
+                                for(;xPos<10;xPos++){
+                                    for(;yPos<10;yPos++){
+                                        if (matrix[xPos][yPos] == -1){
+                                            row_flag = xPos;
+                                            col_flag = yPos;
+                                        }
+                                    }
+                                    yPos = 0;
+                                }
+                                if (row_flag == -1){
+                                    for(int i=0;i<10;i++){
+                                        for(int j=0;j<10;j++) {
+                                            if (matrix[i][j] == -1) {
+                                                row_flag = i;
+                                                col_flag = j;
+                                            }
+                                        }
                                     }
                                 }
                             }
-                            row_check = hashSetX.toArray(new Integer[0]);
-                            col_check = hashSetY.toArray(new Integer[0]);
-
                             rowReady = false;
                             columnReady = false;//행렬 연산에서 사용할 Row or Column이 준비되지 않았을 때 calc 명령이 시행되는 경우 방지
 
@@ -147,6 +160,10 @@ public class ClientHandler implements Runnable {//소켓 접속 때 마다 하�
 
 
                             if(matrix[xPos][yPos] == -1){
+                                if (xPos == row_flag && yPos == col_flag){
+                                    row_flag = -1;
+                                    col_flag = -1;
+                                }
                                 System.out.println("행렬에 값 저장");
                                 int answer = (int) objectInput.readObject();
                                 matrix[xPos][yPos] = answer;
@@ -159,20 +176,28 @@ public class ClientHandler implements Runnable {//소켓 접속 때 마다 하�
                                     }
                                     System.out.println();
                                 }
-                            }
-
-                            HashSet<Integer> hashSetX = new HashSet<>();
-                            HashSet<Integer> hashSetY = new HashSet<>();
-                            for (int i = 0; i < 10; i++){
-                                for (int j = 0; j < 10; j++){
-                                    if (matrix[i][j] == -1) {
-                                        hashSetX.add(i);
-                                        hashSetY.add(j);
+                            } else{
+                                for(;xPos<10;xPos++){
+                                    for(;yPos<10;yPos++){
+                                        if (matrix[xPos][yPos] == -1){
+                                            row_flag = xPos;
+                                            col_flag = yPos;
+                                        }
+                                    }
+                                    yPos = 0;
+                                }
+                                if (row_flag == -1){
+                                    for(int i=0;i<10;i++){
+                                        for(int j=0;j<10;j++) {
+                                            if (matrix[i][j] == -1) {
+                                                row_flag = i;
+                                                col_flag = j;
+                                            }
+                                        }
                                     }
                                 }
                             }
-                            row_check = hashSetX.toArray(new Integer[0]);
-                            col_check = hashSetY.toArray(new Integer[0]);
+
 
                             rowReady = false;
                             columnReady = false;//행렬 연산에서 사용할 Row or Column이 준비되지 않았을 때 calc 명령이 시행되는 경우 방지
@@ -181,9 +206,9 @@ public class ClientHandler implements Runnable {//소켓 접속 때 마다 하�
                 }
             }
 
-        } catch (IOException e) {
-
         } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
             throw new RuntimeException(e);
         } finally {
             try {

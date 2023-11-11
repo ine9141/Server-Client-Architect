@@ -64,8 +64,7 @@ public class Client {
                 if (mode.equals("0")) reset(matrix);
 
                 else if (mode.equals("1")) {
-                    Integer[] row_check = (Integer[]) objectInput.readObject();
-                    int line = (int) Math.floor(Math.random() * row_check.length);
+                    int line = (int) objectInput.readObject();
                     int[] send_array = array("row", matrix, line);
 
                     objectOutput.writeObject(line);
@@ -75,8 +74,7 @@ public class Client {
                     System.out.println("array : " + Arrays.toString(send_array));
                 }
                 else if(mode.equals("2")){
-                    Integer[] col_check = (Integer[]) objectInput.readObject();
-                    int line = (int) Math.floor(Math.random() * col_check.length);
+                    int line = (int) objectInput.readObject();
                     int[] send_array = array("col", matrix, line);
 
                     objectOutput.writeObject(line);
