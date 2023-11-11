@@ -172,6 +172,15 @@ public class ClientHandler implements Runnable {//소켓 접속 때 마다 하�
         }
     }
 
+    // 10x10 배열의 레퍼런스를 넘겨주면 행렬 초기화 해줌. (라운드 종료시 새로운 클라이언트 행렬을 생성하는 기능..?)
+    public void initMatrix(int[][] targetMatrix) {
+        for(int i=0; i<10; i++){
+            for(int j=0; j<10; j++) {
+                targetMatrix[i][j] = (int) (Math.random() * 101);
+            }
+        }
+    }
+
     public void setRole(int num) {
         if(num==0) {
             role[0] = "row_mat";
