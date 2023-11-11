@@ -8,6 +8,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 
 public class ClientHandler implements Runnable {//소켓 접속 때 마다 하나 생김
 
@@ -15,8 +18,8 @@ public class ClientHandler implements Runnable {//소켓 접속 때 마다 하�
     private ServerSocket serverSocket;
 
     private static int[][] matrix = new int[10][10];
-    private boolean[][] isChecked = new boolean[10][10];
     private static int checkedCell = 0;
+    private static int[] finishedList = {0,0,0,0,0,0,0,0,0,0};
 
     private static String[] role = new String[4];
     private static int[] row = new int[10];
@@ -48,7 +51,6 @@ public class ClientHandler implements Runnable {//소켓 접속 때 마다 하�
             ObjectInputStream objectInput = new ObjectInputStream(socket.getInputStream());
             
             LogHandler logHandler = new LogHandler(clientNum);
-
             // for(int i = 0; i < 100; i++){} 100라운드 필요
             objectOutput.writeObject(new Instruction(true,false,false, false)); //새 라운드 시작
             TimeHandler.addTime(ClientList.getClients(socket));
@@ -59,6 +61,7 @@ public class ClientHandler implements Runnable {//소켓 접속 때 마다 하�
                     if(clientNum == 0){
                         //차례대로 행 입력
                         objectOutput.writeObject(new Instruction(false,true,true, false));
+                        objectOutput.writeObject(Arrays.toString(finishedList));
                         xPos = (int) objectInput.readObject();
                         row = (int[]) objectInput.readObject();
                         TimeHandler.addTime(ClientList.getClients(socket));
@@ -105,6 +108,15 @@ public class ClientHandler implements Runnable {//소켓 접속 때 마다 하�
                                         System.out.print("[" + matrix[i][j] + "] ");
                                     }
                                     System.out.println();
+                                }
+                                if(checkedCell < 10){
+                                    boolean isFinishedRaw = true;
+                                    for (int i = 0; i < 10; i++){
+                                        for (int j = 0; j < 10; j++){
+                                            if (matrix[j][i] == -1)isFinishedRaw = false;
+                                        }
+                                        if (isFinishedRaw) finishedList[i] = 1;
+                                    }
                                 }
                             }
                             rowReady = false;
