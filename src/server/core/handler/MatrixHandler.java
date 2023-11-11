@@ -2,9 +2,20 @@ package server.core.handler;
 
 import server.core.ClientList;
 
-public class MatrixHandler {
+import java.io.IOException;
+import java.net.ServerSocket;
 
+public class MatrixHandler implements Runnable {
+
+    private ServerSocket serverSocket;
     private static int[][][] maxtrix = new int[6][10][10];
+    private int targetMatrixIndex; // 몇번째 결과 행렬인가?, 0~5를 가짐. 0이면 AB가 Mat CD가 calc임을 알 수 있음.
+
+
+    public MatrixHandler(ServerSocket serverSocket, int targetMatrixIndex) {
+        this.serverSocket = serverSocket;
+        this.targetMatrixIndex=targetMatrixIndex;
+    }
 
     // 필요할지 모르겠지만 모든 행렬에 계산 값이 들어갔는지 boolean으로 체크 (계산값이0이면 계산결과인지 아직 계산 전인지 모르기때문)
     private static boolean[][][] visit = new boolean[6][10][10];
@@ -58,8 +69,30 @@ public class MatrixHandler {
         int[] orderSequence = ClientList.getOrderSequence();
         maxtrix[pairNumber][line1][line2] = result;
     }
+
+    public static void printIndexTargetMatrix(int index)
+    {
+        String str = (index) + "번째 매트릭스\n";
+        for(int i=0; i<10; i++) {
+            for(int j=0; j<10; j++) {
+                str = str.concat(maxtrix[index][i][j] + " ");
+            }
+            str = str.concat("\n");
+        }
+        str = str.concat("\n");
+        System.out.println(str);
+    }
     public static int[][][] getMaxtrix() {
         return maxtrix;
     }
 
+    @Override
+    public void run() {
+
+        for (int i = 0; i < 4; i++) {
+            ClientHandler clientHandler = new ClientHandler(ClientList.getIntegerToSocket().get(i), serverSocket, targetMatrixIndex);
+            Thread thread = new Thread(clientHandler);
+            thread.start();
+        }
+    }
 }
