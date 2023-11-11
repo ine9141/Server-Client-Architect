@@ -50,37 +50,22 @@ public class Client {
 
             ObjectOutputStream objectOutput = new ObjectOutputStream(socket.getOutputStream());
             ObjectInputStream objectInput = new ObjectInputStream(socket.getInputStream());
-            int[] finishedRaw;
+
             while (true) {
 
                 try{
                     mode = objectInput.readObject().toString();
-                    String[] strNumbers = mode.replaceAll("[\\[\\],]", "").split("\\s+");
-                    finishedRaw = new int[10];
-                    for (int i = 0; i < strNumbers.length; i++) {
-                        finishedRaw[i] = Integer.parseInt(strNumbers[i]);
-                    }
-
-                    System.out.println("mode = " + mode);
                 } catch(EOFException e){
                     continue;
                 }
+
                 //new round start
                 //1. 배열 초기화
                 if (mode.equals("0")) reset(matrix);
 
                 else if (mode.equals("1")) {
-                    int line = (int)(Math.random() * 10);
-                    while (true){
-                        boolean isFinished = false;
-
-                        for (int i = 0; i < 10; i++){
-                            if(finishedRaw[i] == line)isFinished = true;
-                        }
-
-                        if (isFinished)line = (int)(Math.random()*10);
-                        else break;
-                    }
+                    Integer[] row_check = (Integer[]) objectInput.readObject();
+                    int line = (int) Math.floor(Math.random() * row_check.length);
                     int[] send_array = array("row", matrix, line);
 
                     objectOutput.writeObject(line);
@@ -90,7 +75,8 @@ public class Client {
                     System.out.println("array : " + Arrays.toString(send_array));
                 }
                 else if(mode.equals("2")){
-                    int line = (int)(Math.random()*10);
+                    Integer[] col_check = (Integer[]) objectInput.readObject();
+                    int line = (int) Math.floor(Math.random() * col_check.length);
                     int[] send_array = array("col", matrix, line);
 
                     objectOutput.writeObject(line);

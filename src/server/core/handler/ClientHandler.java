@@ -8,9 +8,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 public class ClientHandler implements Runnable {//소켓 접속 때 마다 하나 생김
 
@@ -19,8 +17,8 @@ public class ClientHandler implements Runnable {//소켓 접속 때 마다 하�
 
     private static int[][] matrix = new int[10][10];
     private static int checkedCell = 0;
-    private static int[] finishedList = {0,0,0,0,0,0,0,0,0,0};
-
+    private static Integer[] row_check = {0,1,2,3,4,5,6,7,8,9};
+    private static Integer[] col_check = {0,1,2,3,4,5,6,7,8,9};
     private static String[] role = new String[4];
     private static int[] row = new int[10];
     private static int[] column = new int[10];
@@ -49,8 +47,9 @@ public class ClientHandler implements Runnable {//소켓 접속 때 마다 하�
         try {
             ObjectOutputStream objectOutput = new ObjectOutputStream(socket.getOutputStream());
             ObjectInputStream objectInput = new ObjectInputStream(socket.getInputStream());
-            
+
             LogHandler logHandler = new LogHandler(clientNum);
+
             // for(int i = 0; i < 100; i++){} 100라운드 필요
             objectOutput.writeObject(new Instruction(true,false,false, false)); //새 라운드 시작
             TimeHandler.addTime(ClientList.getClients(socket));
@@ -60,8 +59,9 @@ public class ClientHandler implements Runnable {//소켓 접속 때 마다 하�
                 synchronized (lock){
                     if(clientNum == 0){
                         //차례대로 행 입력
+
                         objectOutput.writeObject(new Instruction(false,true,true, false));
-                        objectOutput.writeObject(Arrays.toString(finishedList));
+                        objectOutput.writeObject(row_check);
                         xPos = (int) objectInput.readObject();
                         row = (int[]) objectInput.readObject();
                         TimeHandler.addTime(ClientList.getClients(socket));
@@ -75,6 +75,7 @@ public class ClientHandler implements Runnable {//소켓 접속 때 마다 하�
                     if(clientNum == 1){
                         //열 입력
                         objectOutput.writeObject(new Instruction(false, true, false, false));
+                        objectOutput.writeObject(col_check);
                         yPos = (int) objectInput.readObject();
                         column = (int[]) objectInput.readObject();
                         TimeHandler.addTime(ClientList.getClients(socket));
@@ -109,19 +110,27 @@ public class ClientHandler implements Runnable {//소켓 접속 때 마다 하�
                                     }
                                     System.out.println();
                                 }
-                                if(checkedCell < 10){
-                                    boolean isFinishedRaw = true;
-                                    for (int i = 0; i < 10; i++){
-                                        for (int j = 0; j < 10; j++){
-                                            if (matrix[j][i] == -1)isFinishedRaw = false;
-                                        }
-                                        if (isFinishedRaw) finishedList[i] = 1;
+                            }
+
+
+                            HashSet<Integer> hashSetX = new HashSet<>();
+                            HashSet<Integer> hashSetY = new HashSet<>();
+                            for (int i = 0; i < 10; i++){
+                                for (int j = 0; j < 10; j++){
+                                    if (matrix[i][j] == -1) {
+                                        hashSetX.add(i);
+                                        hashSetY.add(j);
                                     }
                                 }
                             }
+                            row_check = hashSetX.toArray(new Integer[0]);
+                            col_check = hashSetY.toArray(new Integer[0]);
+
                             rowReady = false;
                             columnReady = false;//행렬 연산에서 사용할 Row or Column이 준비되지 않았을 때 calc 명령이 시행되는 경우 방지
+
                         }
+
                     }
                 }
 
@@ -151,6 +160,20 @@ public class ClientHandler implements Runnable {//소켓 접속 때 마다 하�
                                     System.out.println();
                                 }
                             }
+
+                            HashSet<Integer> hashSetX = new HashSet<>();
+                            HashSet<Integer> hashSetY = new HashSet<>();
+                            for (int i = 0; i < 10; i++){
+                                for (int j = 0; j < 10; j++){
+                                    if (matrix[i][j] == -1) {
+                                        hashSetX.add(i);
+                                        hashSetY.add(j);
+                                    }
+                                }
+                            }
+                            row_check = hashSetX.toArray(new Integer[0]);
+                            col_check = hashSetY.toArray(new Integer[0]);
+
                             rowReady = false;
                             columnReady = false;//행렬 연산에서 사용할 Row or Column이 준비되지 않았을 때 calc 명령이 시행되는 경우 방지
                         }
