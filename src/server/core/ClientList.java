@@ -20,6 +20,22 @@ public class ClientList {
         clientSize++;
     }
 
+    // 0-5를 셔플하여 수행할 순서쌍의 번호를 설정합니다.
+    public static void setSequence() {
+        boolean[] isEmptyNumber = {true, true, true, true, true, true};
+
+        for(int i=0; i<6; i++) {
+            while(true) {
+                int num = (int) (Math.random() * 6);
+                if (isEmptyNumber[num]) {
+                    orderSequence[i] = num;
+                    isEmptyNumber[num] = false;
+                    break;
+                }
+            }
+        }
+    }
+
 //    // 역할 랜덤 배정
 //    public static void setRole() {
 //        String[] roleList = {"row_mat", "col_mat", "calc1", "calc2"};
