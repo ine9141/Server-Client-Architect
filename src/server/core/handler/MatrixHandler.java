@@ -52,6 +52,12 @@ public class MatrixHandler {
         int curOrder = ClientList.getCurOrder();
         maxtrix[orderSequence[curOrder]][line1][line2] = result;
     }
+
+    public static void saveResult(int pairNumber, int line1, int line2, int result) {
+        // [순서쌍의 번호][행][열]
+        int[] orderSequence = ClientList.getOrderSequence();
+        maxtrix[pairNumber][line1][line2] = result;
+    }
     public static int[][][] getMaxtrix() {
         return maxtrix;
     }
