@@ -14,6 +14,7 @@ public class ClientHandler implements Runnable {//소켓 접속 때 마다 하�
 
     private Socket socket;
     private ServerSocket serverSocket;
+    private int targetMatriexIndex; // 0~5를 가짐. 0이면 AB가 Mat CD가 calc임을 알 수 있음.
 
     private static int[][] matrix = new int[10][10];
     private static int checkedCell = 0;
@@ -23,14 +24,31 @@ public class ClientHandler implements Runnable {//소켓 접속 때 마다 하�
     private static int xPos, yPos;
     private static int row_flag,  col_flag;
     private int clientNum;
+    private int workNum; // 실제 맡은 역할임. 0: row, 1: col, 2: cal, 3: cal
 
     private static boolean rowReady = false, columnReady = false;
 
-    public ClientHandler(Socket socket, ServerSocket serverSocket) {
+    public ClientHandler(Socket socket, ServerSocket serverSocket, int targetMatriexIndex) {
         this.socket = socket;
         this.serverSocket = serverSocket;
+        this.targetMatriexIndex=targetMatriexIndex;
         clientNum = ClientList.getClients(socket);
-        System.out.println("clientNum = " + clientNum);
+        if(targetMatriexIndex==1) { // 1이면 역할 변경
+            if(clientNum==0) { // 클라 번호에 따라 역할 변경
+                workNum=1; // 현재 row col 역할이 calc 역할도 맡으면 에러가 터짐. 그러나 row col 역할이 row col 내 변경은 가능함.
+            } else if(clientNum==1) {
+                workNum=0;
+            } else if(clientNum==2) {
+                workNum=3;
+            } else if(clientNum==3) {
+                workNum=2;
+            }
+        } else { // 0이면 그대로 AB(row col) CD(calc calc)
+            workNum=clientNum;
+        }
+
+        // 아래의 if문에 따른 -1 초기화 이해가 안감.!
+        System.out.println("clientNum = " + clientNum + " workNum = " + workNum);
         if(clientNum == 0){
             for (int i = 0; i < 10; i++){
                 for(int j = 0; j < 10; j++){
@@ -44,19 +62,20 @@ public class ClientHandler implements Runnable {//소켓 접속 때 마다 하�
     @Override
     public void run() {
         try {
-            ObjectOutputStream objectOutput = new ObjectOutputStream(socket.getOutputStream());
-            ObjectInputStream objectInput = new ObjectInputStream(socket.getInputStream());
+            ObjectOutputStream objectOutput = StreamHandler.getOutputStreamMap().get(socket);
+            ObjectInputStream objectInput = StreamHandler.getInputStreamMap().get(socket);
 
             LogHandler logHandler = new LogHandler(clientNum);
 
             // for(int i = 0; i < 100; i++){} 100라운드 필요
-            objectOutput.writeObject(new Instruction(true,false,false, false)); //새 라운드 시작
+            //objectOutput.writeObject(new Instruction(true,false,false, false)); //새 라운드 시작
             TimeHandler.addTime(ClientList.getClients(socket));
             logHandler.clientLog("[Client" + clientNum + "] New Round 수행\n");
             LogHandler.serverLog("[Client" + clientNum + "] New Round 수행. Server Time : " + TimeHandler.getClientTime(clientNum) + "\n");
             while(checkedCell != 100) {
+                System.out.println("정신나갈 targetMatriexIndex = " + targetMatriexIndex); // targetMatrixIndex에 따른 병렬 동작 확인용
                 synchronized (lock){
-                    if(clientNum == 0){
+                    if(workNum == 0){ // 작업 종류에 따른 분기
                         //차례대로 행 입력
                         objectOutput.writeObject(new Instruction(false,true,true, false));
                         int line;
@@ -73,7 +92,7 @@ public class ClientHandler implements Runnable {//소켓 접속 때 마다 하�
                 }
 
                 synchronized (lock){
-                    if(clientNum == 1){
+                    if(workNum == 1){
                         //열 입력
                         objectOutput.writeObject(new Instruction(false, true, false, false));
                         int line;
@@ -90,7 +109,7 @@ public class ClientHandler implements Runnable {//소켓 접속 때 마다 하�
                 }
 
                 synchronized (lock){
-                    if(clientNum == 2){
+                    if(workNum == 2){
                         if(rowReady && columnReady){//값을 입력하지 않은 배열이라면 client에서 calc 호출
                             System.out.println("cNum2 수행");
                             objectOutput.writeObject(new Instruction(false,false,false, true));
@@ -148,7 +167,7 @@ public class ClientHandler implements Runnable {//소켓 접속 때 마다 하�
                 }
 
                 synchronized (lock){
-                    if(clientNum == 3){
+                    if(workNum == 3){
                         if(rowReady && columnReady){//값을 입력하지 않은 배열이라면 client에서 calc 호출
                             System.out.println("cNum3 수행");
                             objectOutput.writeObject(new Instruction(false,false,false, true));
@@ -205,6 +224,7 @@ public class ClientHandler implements Runnable {//소켓 접속 때 마다 하�
                     }
                 }
             }
+            System.out.println("경축! " + targetMatriexIndex +"번째 매트릭스 완성!");
 
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
