@@ -6,6 +6,7 @@ import java.util.Map;
 
 public class ClientList {
     private static Map<Socket, Integer> clients = new HashMap<>();
+    private static Map<Integer, Socket> IntegerToSocket = new HashMap<>();
     // row_mat, col_mat / calc1, calc2
     private static int clientSize = 0;
 
@@ -16,7 +17,7 @@ public class ClientList {
     private static int curOrder = 0;
 
     public static void addClient(Socket socket) {
-        clients.put(socket, getClientSize());
+        clients.put(socket, Integer.valueOf(getClientSize()));
         clientSize++;
     }
 
@@ -109,5 +110,13 @@ public class ClientList {
 
     public static int getClientSize() {
         return clientSize;
+    }
+
+    public static Map<Integer, Socket> getIntegerToSocket() {
+        return IntegerToSocket;
+    }
+
+    public static Map<Socket, Integer> getClients() {
+        return clients;
     }
 }
