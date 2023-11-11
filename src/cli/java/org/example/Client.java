@@ -1,5 +1,7 @@
 package cli.java.org.example;
 
+import server.core.handler.StreamHandler;
+
 import java.io.*;
 import java.net.Socket;
 import java.util.Arrays;
@@ -50,6 +52,8 @@ public class Client {
 
             ObjectOutputStream objectOutput = new ObjectOutputStream(socket.getOutputStream());
             ObjectInputStream objectInput = new ObjectInputStream(socket.getInputStream());
+//            ObjectOutputStream objectOutput = StreamHandler.getOutputStreamMap().get(socket);
+//            ObjectInputStream objectInput = StreamHandler.getInputStreamMap().get(socket);
 
             while (true) {
 
