@@ -1,14 +1,8 @@
 package server.core.handler;
 
-
-import server.core.ArrayConvert;
-import server.core.Main;
-
 import java.io.*;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -37,18 +31,14 @@ public class ClientHandler{//소켓 접속 때 마다 하나 생김
     }
 
     public void start() throws IOException, ClassNotFoundException {
-        int tick = 0;
         int combNum = 0;
-        boolean rowReady = false;
-        boolean flip = true;
-        boolean colReady = false;
+        boolean rowReady;
+        boolean colReady;
         while (round < 100){
-            tick++;
             String[] comb = combSet[combNum];
             Row rowIn = null;
             Column columnIn = null;
             rowReady = false;
-            flip = true;
             colReady = false;
             int a = -1,b = -1;
             for (int i = 0; i < 4; i++){
@@ -73,8 +63,6 @@ public class ClientHandler{//소켓 접속 때 마다 하나 생김
             int res = result.get((int) (Math.random() * 2));
             if(colReady && rowReady){
                 doCalc(clients.get(res), combNum, rowIn, columnIn);
-                colReady = false;
-                rowReady = false;
             }
             if(combNum == 5){
                 combNum = 0;
@@ -106,9 +94,6 @@ public class ClientHandler{//소켓 접속 때 마다 하나 생김
     public static void addCheckedCell(){
         checkedCell++;
     }
-    public static int getCheckedCell(){
-        return checkedCell;
-    }
 
     private Column getColumn(Socket socket) throws IOException, ClassNotFoundException {
         ObjectOutputStream objectOutput = outputStreams.get(socket);
@@ -117,9 +102,7 @@ public class ClientHandler{//소켓 접속 때 마다 하나 생김
         objectOutput.writeObject(2);
         objectOutput.writeObject(line_col);
 
-        Column returnColumn = new Column((int) objectInput.readObject(),(int[]) objectInput.readObject());
-        return returnColumn;
-
+        return new Column((int) objectInput.readObject(),(int[]) objectInput.readObject());
     }
 
     private Row getRow(Socket socket) throws IOException, ClassNotFoundException {
@@ -129,8 +112,7 @@ public class ClientHandler{//소켓 접속 때 마다 하나 생김
         objectOutput.writeObject(1);
         objectOutput.writeObject(line_row);
 
-        Row returnRow = new Row((int) objectInput.readObject(),(int[]) objectInput.readObject());
-        return returnRow;
+        return new Row((int) objectInput.readObject(),(int[]) objectInput.readObject());
     }
 
     class Row{

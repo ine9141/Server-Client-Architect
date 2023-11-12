@@ -66,8 +66,6 @@ public class Client extends Thread{
                     mode = (int) objectInput.readObject();
                 } catch(Exception e){
                     continue;
-                }catch (SocketException e){
-                    continue;
                 }
 
                 //new round start
