@@ -24,13 +24,18 @@ public class ClientHandler implements Runnable {//소켓 접속 때 마다 하�
     private int c;
     private static boolean rowReady = false, columnReady = false;
 
-    public ClientHandler(Socket socket, ServerSocket serverSocket, int clientNum, int round, int c, MatrixHandler matrixHandler) {
+    private ObjectOutputStream objectOutput;
+    private ObjectInputStream objectInput;
+
+    public ClientHandler(Socket socket, ServerSocket serverSocket, int clientNum, int round, int c, MatrixHandler matrixHandler,ObjectInputStream objectInputStream, ObjectOutputStream objectOutputStream) {
         this.socket = socket;
         this.serverSocket = serverSocket;
         this.clientNum = clientNum;
         this.round = round;
         this.c = c;
         this.matrixHandler = matrixHandler;
+        this.objectInput = objectInputStream;
+        this.objectOutput = objectOutputStream;
 
         for(int i = 0 ; i < 10; i++){
             for(int j = 0 ; j < 10; j++) matrix[i][j] = -1;
@@ -42,8 +47,6 @@ public class ClientHandler implements Runnable {//소켓 접속 때 마다 하�
     public void run() {
         try {
 
-            ObjectOutputStream objectOutput = new ObjectOutputStream(this.socket.getOutputStream());
-            ObjectInputStream objectInput = new ObjectInputStream(this.socket.getInputStream());
             LogHandler logHandler = new LogHandler(clientNum);
 
             //새 라운드 시작
