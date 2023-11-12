@@ -4,24 +4,13 @@ package server.core.handler;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.net.ServerSocket;
-import java.net.Socket;
 
 public class ClientHandler implements Runnable {//소켓 접속 때 마다 하나 생김
-    private static int[][] matrix = new int[10][10];
-    private static int checkedCell = 0;
-    private static String[] role = new String[4];
-    private static int[] row = new int[10];
-    private static int[] column = new int[10];
-    private static int xPos, yPos;
-    private static int row_flag,  col_flag;
-    private int clientNum;
-    private int round;
-    private int c;
-    private static boolean rowReady = false, columnReady = false;
-
-    private ObjectOutputStream objectOutput;
-    private ObjectInputStream objectInput;
+    private final int clientNum;
+    private final int round;
+    private final int c;
+    private final ObjectOutputStream objectOutput;
+    private final ObjectInputStream objectInput;
 
     public ClientHandler(int clientNum, int round, int c, ObjectInputStream objectInputStream, ObjectOutputStream objectOutputStream) {
         this.clientNum = clientNum;
@@ -30,8 +19,8 @@ public class ClientHandler implements Runnable {//소켓 접속 때 마다 하�
         this.objectInput = objectInputStream;
         this.objectOutput = objectOutputStream;
 
-        for(int i = 0 ; i < 10; i++){
-            for(int j = 0 ; j < 10; j++) matrix[i][j] = -1;
+        for(int i = 0; i<10;i++){
+            for(int j=0;j<10;j++) MatrixHandler.setMatrix(round,c,i,j,-1);
         }
     }
 
@@ -48,100 +37,99 @@ public class ClientHandler implements Runnable {//소켓 접속 때 마다 하�
             logHandler.clientLog("[Client" + clientNum + "] New Round 수행\n");
             LogHandler.serverLog("[Client" + clientNum + "] New Round 수행. Server Time : " + TimeHandler.getClientTime(clientNum) + "\n");
 
-
-            while(checkedCell != 100) {
+            while(true) {
                 //row 전송
                 synchronized (lock){
-                    if(clientNum == 0){
+                    if(clientNum == 0 && !TransmissionHandler.rowReady[c]){
                         //차례대로 행 입력
-                        objectOutput.writeObject(1);
                         int line_row;
-                        if(row_flag != -1) line_row = row_flag;
+                        if(TransmissionHandler.row_flag[c] != -1) line_row = TransmissionHandler.row_flag[c];
                         else line_row = (int)(Math.random()*10);
+                        objectOutput.writeObject(1);
                         objectOutput.writeObject(line_row);
-                        xPos = (int) objectInput.readObject();
-                        row = (int[]) objectInput.readObject();
+                        TransmissionHandler.xPos[c] = (int) objectInput.readObject();
+                        TransmissionHandler.row[c] = (int[]) objectInput.readObject();
                         TimeHandler.addTime(clientNum);
                         logHandler.clientLog("[Client" + clientNum + "] Get Matrix Row 수행\n");
                         LogHandler.serverLog("[Client" + clientNum + "] Get Matrix Row 수행. Server Time : " + TimeHandler.getClientTime(clientNum) + "\n");
-                        rowReady = true;
+                        TransmissionHandler.rowReady[c] = true;
                     }
                 }
 
                 //col 전송
                 synchronized (lock){
-                    if(clientNum == 1){
+                    if(clientNum == 1 && !TransmissionHandler.columnReady[c]){
                         //열 입력
                         int line_col;
-                        if(col_flag != -1) line_col = col_flag;
+                        if(TransmissionHandler.col_flag[c] != -1) line_col = TransmissionHandler.col_flag[c];
                         else line_col = (int)(Math.random()*10);
                         objectOutput.writeObject(2);
                         objectOutput.writeObject(line_col);
-                        yPos = (int) objectInput.readObject();
-                        column = (int[]) objectInput.readObject();
+                        TransmissionHandler.yPos[c] = (int) objectInput.readObject();
+                        TransmissionHandler.col[c] = (int[]) objectInput.readObject();
                         TimeHandler.addTime(clientNum);
                         logHandler.clientLog("[Client" + clientNum + "] Get Matrix Column 수행\n");
                         LogHandler.serverLog("[Client" + clientNum + "] Get Matrix Column 수행. Server Time : " + TimeHandler.getClientTime(clientNum) + "\n");
-                        columnReady = true;
+                        TransmissionHandler.columnReady[c] = true;
                     }
                 }
 
                 //계산
                 synchronized (lock){
                     if(clientNum == 2 || clientNum == 3){
-                        if(rowReady && columnReady){//값을 입력하지 않은 배열이라면 client에서 calc 호출
+                        if(TransmissionHandler.rowReady[c] && TransmissionHandler.columnReady[c]){//값을 입력하지 않은 배열이라면 client에서 calc 호출
+                            TransmissionHandler.rowReady[c] = false;
+                            TransmissionHandler.columnReady[c] = false;
                             if (clientNum == 2) System.out.println("cNum2 수행");
                             else System.out.println("cNum3 수행");
                             objectOutput.writeObject(3);
-                            objectOutput.writeObject(row);
-                            objectOutput.writeObject(column);
+                            objectOutput.writeObject(TransmissionHandler.row[c]);
+                            objectOutput.writeObject(TransmissionHandler.col[c]);
                             TimeHandler.addTime(clientNum);
                             logHandler.clientLog("[Client" + clientNum + "] Calculation 수행\n");
                             LogHandler.serverLog("[Client" + clientNum + "] Calculation 수행. Server Time : " + TimeHandler.getClientTime(clientNum) + "\n");
 
 
-                            if(matrix[xPos][yPos] == -1){
-                                if (xPos == row_flag && yPos == col_flag){
-                                    row_flag = -1;
-                                    col_flag = -1;
+                            if(MatrixHandler.getMatrix(round,c, TransmissionHandler.xPos[c], TransmissionHandler.yPos[c]) == -1){
+                                if (TransmissionHandler.xPos[c] == TransmissionHandler.row_flag[c] && TransmissionHandler.yPos[c] == TransmissionHandler.col_flag[c]){
+                                    TransmissionHandler.row_flag[c] = -1;
+                                    TransmissionHandler.col_flag[c] = -1;
                                 }
                                 System.out.println("행렬에 값 저장");
                                 int answer = (int) objectInput.readObject();
-                                matrix[xPos][yPos] = answer;
-                                MatrixHandler.setMatrix(round,c,xPos,yPos,answer);
-
-
-                                checkedCell++;
-                                System.out.println("checkedCell = " + checkedCell);
+                                MatrixHandler.setMatrix(round,c, TransmissionHandler.xPos[c], TransmissionHandler.yPos[c],answer);
+                                MatrixHandler.setMatLen(round,c);
+                                TransmissionHandler.checkedCell[c]++;
+                                System.out.println("combNum = "+c+", checkedCell = " + TransmissionHandler.checkedCell[c]);
                                 for (int i = 0; i < 10; i++){
                                     for(int j = 0; j < 10; j++){
-                                        System.out.print("[" + matrix[i][j] + "] ");
+                                        System.out.print("[" + MatrixHandler.getMatrix(round,c,i,j) + "] ");
                                     }
                                     System.out.println();
                                 }
+                                MatrixHandler.matrixFlag = true;
+                                break;
                             } else{
-                                for(;xPos<10;xPos++){
-                                    for(;yPos<10;yPos++){
-                                        if (matrix[xPos][yPos] == -1){
-                                            row_flag = xPos;
-                                            col_flag = yPos;
+                                for(; TransmissionHandler.xPos[c]<10; TransmissionHandler.xPos[c]++){
+                                    for(; TransmissionHandler.yPos[c]<10; TransmissionHandler.yPos[c]++){
+                                        if (MatrixHandler.getMatrix(round,c, TransmissionHandler.xPos[c], TransmissionHandler.yPos[c]) == -1){
+                                            TransmissionHandler.row_flag[c] = TransmissionHandler.xPos[c];
+                                            TransmissionHandler.col_flag[c] = TransmissionHandler.yPos[c];
                                         }
                                     }
-                                    yPos = 0;
+                                    TransmissionHandler.yPos[c] = 0;
                                 }
-                                if (row_flag == -1){
+                                if (TransmissionHandler.row_flag[c] == -1){
                                     for(int i=0;i<10;i++){
                                         for(int j=0;j<10;j++) {
-                                            if (matrix[i][j] == -1) {
-                                                row_flag = i;
-                                                col_flag = j;
+                                            if (MatrixHandler.getMatrix(round,c,i,j) == -1) {
+                                                TransmissionHandler.row_flag[c] = i;
+                                                TransmissionHandler.col_flag[c] = j;
                                             }
                                         }
                                     }
                                 }
                             }
-                            rowReady = false;
-                            columnReady = false;//행렬 연산에서 사용할 Row or Column이 준비되지 않았을 때 calc 명령이 시행되는 경우 방지
                         }
                     }
                 }
