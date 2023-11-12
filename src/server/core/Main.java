@@ -2,17 +2,18 @@ package server.core;
 
 import server.core.handler.ClientHandler;
 import server.core.handler.MatrixHandler;
+import server.core.handler.SetupHandler;
+import server.core.handler.ThreadHandler;
 
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.HashMap;
 
 public class Main { //row col calc calc
     public static void main(String[] args) throws IOException {
 
         MatrixHandler matrixHandler = new MatrixHandler();
-        HashMap<Integer,Socket> clients = new HashMap<>();
+        SetupHandler setupHandler = SetupHandler.getInstance();
 
         ServerSocket serverSocket = new ServerSocket(23921);
         System.out.println("[Server] 서버 시작.");
@@ -23,9 +24,11 @@ public class Main { //row col calc calc
                 socket = serverSocket.accept();
             }
             System.out.println("[Server] " + socket.getRemoteSocketAddress().toString() + " 클라이언트 연결 완료.");
-            clients.put(i, socket);
+            ThreadHandler threadHandler = new ThreadHandler(i,socket);
+            threadHandler.run();
         }
-        ClientHandler clientHandlerThread = new ClientHandler(new MatrixHandler(), clients);
+
+        ClientHandler clientHandlerThread = new ClientHandler(new MatrixHandler());
         clientHandlerThread.start();
     }
 

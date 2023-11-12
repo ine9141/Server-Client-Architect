@@ -2,17 +2,15 @@ package server.core.handler;
 
 import java.io.*;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class ClientHandler extends Thread{ //소켓 접속 때 마다 하나 생김
 
     private MatrixHandler matrixHandler;
     private HashMap<Integer,Socket> clients;
-    private HashMap<Socket,ObjectOutputStream> outputStreams = new HashMap<>();
-    private HashMap<Socket,ObjectInputStream> inputStreams = new HashMap<>();
+    private HashMap<Socket,ObjectOutputStream> outputStreams;
+    private HashMap<Socket,ObjectInputStream> inputStreams;
+
 
     public static String[][] combSet = {{"row","col","calc","calc"}, {"col","row","calc","calc"}, {"calc","col","row","calc"},
             {"calc","row","col","calc"}, {"calc","calc","row","col"}, {"calc","calc","col","row"}};
@@ -20,13 +18,14 @@ public class ClientHandler extends Thread{ //소켓 접속 때 마다 하나 생
     private static int round = 0;
 
 
-    public ClientHandler(MatrixHandler matrixHandler, HashMap<Integer,Socket> clients) throws IOException {
+    public ClientHandler(MatrixHandler matrixHandler){
         this.matrixHandler = matrixHandler;
-        this.clients = clients;
-        for (int i = 0; i < 4; i++){
-            outputStreams.put(clients.get(i), new ObjectOutputStream(clients.get(i).getOutputStream()));
-            inputStreams.put(clients.get(i), new ObjectInputStream(clients.get(i).getInputStream()));
-        }
+
+        SetupHandler setupHandler = SetupHandler.getInstance();
+        System.out.println("ClientHandler - SetupHandler instance: " + setupHandler);
+        clients = setupHandler.getClients();
+        outputStreams = setupHandler.getOutputStreams();
+        inputStreams = setupHandler.getInputStreams();
     }
 
     @Override
