@@ -9,7 +9,7 @@ import java.net.Socket;
 import java.util.HashMap;
 
 public class Main { //row col calc calc
-    public static void main(String[] args) throws IOException, ClassNotFoundException {
+    public static void main(String[] args) throws IOException {
 
         MatrixHandler matrixHandler = new MatrixHandler();
         HashMap<Integer,Socket> clients = new HashMap<>();
@@ -25,8 +25,8 @@ public class Main { //row col calc calc
             System.out.println("[Server] " + socket.getRemoteSocketAddress().toString() + " 클라이언트 연결 완료.");
             clients.put(i, socket);
         }
-        ClientHandler clientHandler = new ClientHandler(new MatrixHandler(), clients);
-        clientHandler.start();
+        ClientHandler clientHandlerThread = new ClientHandler(new MatrixHandler(), clients);
+        clientHandlerThread.start();
     }
 
 }

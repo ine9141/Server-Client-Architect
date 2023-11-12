@@ -5,8 +5,9 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
-public class ClientHandler{//소켓 접속 때 마다 하나 생김
+public class ClientHandler extends Thread{ //소켓 접속 때 마다 하나 생김
 
     private MatrixHandler matrixHandler;
     private HashMap<Integer,Socket> clients;
@@ -16,9 +17,7 @@ public class ClientHandler{//소켓 접속 때 마다 하나 생김
     public static String[][] combSet = {{"row","col","calc","calc"}, {"col","row","calc","calc"}, {"calc","col","row","calc"},
             {"calc","row","col","calc"}, {"calc","calc","row","col"}, {"calc","calc","col","row"}};
     private static int checkedCell = 0;
-    private static int[] row = new int[10];
-    private static int[] column = new int[10];
-    private static int round = 1;
+    private static int round = 0;
 
 
     public ClientHandler(MatrixHandler matrixHandler, HashMap<Integer,Socket> clients) throws IOException {
@@ -30,11 +29,12 @@ public class ClientHandler{//소켓 접속 때 마다 하나 생김
         }
     }
 
-    public void start() throws IOException, ClassNotFoundException {
+    @Override
+    public void run() {
         int combNum = 0;
         boolean rowReady;
         boolean colReady;
-        while (round < 101){
+        while (round < 100){
             String[] comb = combSet[combNum];
             Row rowIn = null;
             Column columnIn = null;
@@ -42,13 +42,21 @@ public class ClientHandler{//소켓 접속 때 마다 하나 생김
             colReady = false;
             int a = -1,b = -1;
             for (int i = 0; i < 4; i++){
-                if(comb[i] == "row"){
-                    rowIn = getRow(clients.get(i));
+                if(comb[i].equals("row")){
+                    try {
+                        rowIn = getRow(clients.get(i));
+                    } catch (IOException | ClassNotFoundException e) {
+                        throw new RuntimeException(e);
+                    }
                     a = i;
                     rowReady = true;
                 }
-                if(comb[i] == "col"){
-                    columnIn = getColumn(clients.get(i));
+                if(comb[i].equals("col")){
+                    try {
+                        columnIn = getColumn(clients.get(i));
+                    } catch (IOException | ClassNotFoundException e) {
+                        throw new RuntimeException(e);
+                    }
                     b = i;
                     colReady = true;
                 }
@@ -62,7 +70,11 @@ public class ClientHandler{//소켓 접속 때 마다 하나 생김
             }
             int res = result.get((int) (Math.random() * 2));
             if(colReady && rowReady){
-                doCalc(clients.get(res), combNum, rowIn, columnIn);
+                try {
+                    doCalc(clients.get(res), combNum, rowIn, columnIn);
+                } catch (IOException | ClassNotFoundException e) {
+                    throw new RuntimeException(e);
+                }
             }
             if(combNum == 5){
                 combNum = 0;
@@ -74,7 +86,11 @@ public class ClientHandler{//소켓 접속 때 마다 하나 생김
                 checkedCell = 0;
                 MatrixHandler.printMatrix(round,0);
                 for (int i = 0; i < 4; i++){
-                    outputStreams.get(clients.get(i)).writeObject(0);
+                    try {
+                        outputStreams.get(clients.get(i)).writeObject(0);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
                 round++;
             }

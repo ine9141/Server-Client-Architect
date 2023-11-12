@@ -17,7 +17,7 @@ public class MatrixHandler {
     public static void printMatrix(int round, int time) {
         int[][][] temp = matrix[round];
         for (int i = 0; i < 6; i++){
-            System.out.print("Round : " + round + "  Comb : " + i);
+            System.out.print("Round : " + (round+1) + "  Comb : " + i);
             for (int j = 0; j < 10; j++){
                 System.out.println();
                 for (int k = 0; k < 10; k++){
