@@ -5,7 +5,7 @@ import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class CombinationHandler implements Runnable{
+public class CombinationHandler{
     private Socket socket0;
     private Socket socket1;
     private Socket socket2;
@@ -27,15 +27,15 @@ public class CombinationHandler implements Runnable{
         this.c = c;
     }
 
-    @Override
-    public void run() {
-        Thread thread0 = new Thread(new ClientHandler(socket0, serverSocket, 0, round, c, matrixHandler));
-        Thread thread1 = new Thread(new ClientHandler(socket1, serverSocket, 1, round, c, matrixHandler));
-        Thread thread2 = new Thread(new ClientHandler(socket2, serverSocket, 2, round, c, matrixHandler));
-        Thread thread3 = new Thread(new ClientHandler(socket3, serverSocket, 3, round, c, matrixHandler));
-        thread0.start();
-        thread1.start();
-        thread2.start();
-        thread3.start();
-    }
+//    @Override
+//    public void run() {
+//        Thread thread0 = new Thread(new ClientHandler(socket0, serverSocket, 0, round, c, matrixHandler));
+//        Thread thread1 = new Thread(new ClientHandler(socket1, serverSocket, 1, round, c, matrixHandler));
+//        Thread thread2 = new Thread(new ClientHandler(socket2, serverSocket, 2, round, c, matrixHandler));
+//        Thread thread3 = new Thread(new ClientHandler(socket3, serverSocket, 3, round, c, matrixHandler));
+//        thread0.start();
+//        thread1.start();
+//        thread2.start();
+//        thread3.start();
+//    }
 }

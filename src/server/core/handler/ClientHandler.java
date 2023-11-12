@@ -1,158 +1,154 @@
 package server.core.handler;
 
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import server.core.ArrayConvert;
+import server.core.Main;
+
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 
-public class ClientHandler implements Runnable {//소켓 접속 때 마다 하나 생김
+public class ClientHandler{//소켓 접속 때 마다 하나 생김
 
-    private Socket socket;
-    private ServerSocket serverSocket;
     private MatrixHandler matrixHandler;
-    private static int[][] matrix = new int[10][10];
+    private HashMap<Integer,Socket> clients;
+    private HashMap<Socket,ObjectOutputStream> outputStreams = new HashMap<>();
+    private HashMap<Socket,ObjectInputStream> inputStreams = new HashMap<>();
+
+    public static String[][] combSet = {{"row","col","calc","calc"}, {"col","row","calc","calc"}, {"calc","col","row","calc"},
+            {"calc","row","col","calc"}, {"calc","calc","row","col"}, {"calc","calc","col","row"}};
     private static int checkedCell = 0;
-    private static String[] role = new String[4];
     private static int[] row = new int[10];
     private static int[] column = new int[10];
-    private static int xPos, yPos;
-    private static int row_flag,  col_flag;
-    private int clientNum;
-    private int round;
-    private int c;
-    private static boolean rowReady = false, columnReady = false;
+    private static int round = 0;
 
-    public ClientHandler(Socket socket, ServerSocket serverSocket, int clientNum, int round, int c, MatrixHandler matrixHandler) {
-        this.socket = socket;
-        this.serverSocket = serverSocket;
-        this.clientNum = clientNum;
-        this.round = round;
-        this.c = c;
+
+    public ClientHandler(MatrixHandler matrixHandler, HashMap<Integer,Socket> clients) throws IOException {
         this.matrixHandler = matrixHandler;
-
-        for(int i = 0 ; i < 10; i++){
-            for(int j = 0 ; j < 10; j++) matrix[i][j] = -1;
+        this.clients = clients;
+        for (int i = 0; i < 4; i++){
+            outputStreams.put(clients.get(i), new ObjectOutputStream(clients.get(i).getOutputStream()));
+            inputStreams.put(clients.get(i), new ObjectInputStream(clients.get(i).getInputStream()));
         }
     }
 
-    private static final Object lock = ClientHandler.class;
-    @Override
-    public void run() {
-        try {
-
-            ObjectOutputStream objectOutput = new ObjectOutputStream(this.socket.getOutputStream());
-            ObjectInputStream objectInput = new ObjectInputStream(this.socket.getInputStream());
-            LogHandler logHandler = new LogHandler(clientNum);
-
-            //새 라운드 시작
-            objectOutput.writeObject(0);
-            TimeHandler.addTime(clientNum);
-            logHandler.clientLog("[Client" + clientNum + "] New Round 수행\n");
-            LogHandler.serverLog("[Client" + clientNum + "] New Round 수행. Server Time : " + TimeHandler.getClientTime(clientNum) + "\n");
-
-
-            while(checkedCell != 100) {
-                //row 전송
-                synchronized (lock){
-                    if(clientNum == 0){
-                        //차례대로 행 입력
-                        objectOutput.writeObject(1);
-                        int line_row;
-                        if(row_flag != -1) line_row = row_flag;
-                        else line_row = (int)(Math.random()*10);
-                        objectOutput.writeObject(line_row);
-                        xPos = (int) objectInput.readObject();
-                        row = (int[]) objectInput.readObject();
-                        TimeHandler.addTime(clientNum);
-                        logHandler.clientLog("[Client" + clientNum + "] Get Matrix Row 수행\n");
-                        LogHandler.serverLog("[Client" + clientNum + "] Get Matrix Row 수행. Server Time : " + TimeHandler.getClientTime(clientNum) + "\n");
-                        rowReady = true;
-                    }
+    public void start() throws IOException, ClassNotFoundException {
+        int tick = 0;
+        int combNum = 0;
+        boolean rowReady = false;
+        boolean flip = true;
+        boolean colReady = false;
+        while (round < 100){
+            tick++;
+            String[] comb = combSet[combNum];
+            Row rowIn = null;
+            Column columnIn = null;
+            rowReady = false;
+            flip = true;
+            colReady = false;
+            int a = -1,b = -1;
+            for (int i = 0; i < 4; i++){
+                if(comb[i] == "row"){
+                    rowIn = getRow(clients.get(i));
+                    a = i;
+                    rowReady = true;
                 }
-
-                //col 전송
-                synchronized (lock){
-                    if(clientNum == 1){
-                        //열 입력
-                        objectOutput.writeObject(2);
-                        int line_col;
-                        if(col_flag != -1) line_col = col_flag;
-                        else line_col = (int)(Math.random()*10);
-                        objectOutput.writeObject(line_col);
-                        yPos = (int) objectInput.readObject();
-                        column = (int[]) objectInput.readObject();
-                        TimeHandler.addTime(clientNum);
-                        logHandler.clientLog("[Client" + clientNum + "] Get Matrix Column 수행\n");
-                        LogHandler.serverLog("[Client" + clientNum + "] Get Matrix Column 수행. Server Time : " + TimeHandler.getClientTime(clientNum) + "\n");
-                        columnReady = true;
-                    }
-                }
-
-                //계산
-                synchronized (lock){
-                    if(clientNum == 2 || clientNum == 3){
-                        if(rowReady && columnReady){//값을 입력하지 않은 배열이라면 client에서 calc 호출
-                            if (clientNum == 2) System.out.println("cNum2 수행");
-                            else System.out.println("cNum3 수행");
-                            objectOutput.writeObject(3);
-                            objectOutput.writeObject(row);
-                            objectOutput.writeObject(column);
-                            TimeHandler.addTime(clientNum);
-                            logHandler.clientLog("[Client" + clientNum + "] Calculation 수행\n");
-                            LogHandler.serverLog("[Client" + clientNum + "] Calculation 수행. Server Time : " + TimeHandler.getClientTime(clientNum) + "\n");
-
-
-                            if(matrix[xPos][yPos] == -1){
-                                if (xPos == row_flag && yPos == col_flag){
-                                    row_flag = -1;
-                                    col_flag = -1;
-                                }
-                                System.out.println("행렬에 값 저장");
-                                int answer = (int) objectInput.readObject();
-                                matrix[xPos][yPos] = answer;
-                                matrixHandler.setMatrix(round,c,xPos,yPos,answer);
-
-
-                                checkedCell++;
-                                System.out.println("checkedCell = " + checkedCell);
-                                for (int i = 0; i < 10; i++){
-                                    for(int j = 0; j < 10; j++){
-                                        System.out.print("[" + matrix[i][j] + "] ");
-                                    }
-                                    System.out.println();
-                                }
-                            } else{
-                                for(;xPos<10;xPos++){
-                                    for(;yPos<10;yPos++){
-                                        if (matrix[xPos][yPos] == -1){
-                                            row_flag = xPos;
-                                            col_flag = yPos;
-                                        }
-                                    }
-                                    yPos = 0;
-                                }
-                                if (row_flag == -1){
-                                    for(int i=0;i<10;i++){
-                                        for(int j=0;j<10;j++) {
-                                            if (matrix[i][j] == -1) {
-                                                row_flag = i;
-                                                col_flag = j;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            rowReady = false;
-                            columnReady = false;//행렬 연산에서 사용할 Row or Column이 준비되지 않았을 때 calc 명령이 시행되는 경우 방지
-                        }
-                    }
+                if(comb[i] == "col"){
+                    columnIn = getColumn(clients.get(i));
+                    b = i;
+                    colReady = true;
                 }
             }
+            List<Integer> result = new ArrayList<>();
 
-        } catch (ClassNotFoundException | IOException e) {
-            throw new RuntimeException(e);
+            for (int i = 0; i < 4; i++) {
+                if (i != a && i != b) {
+                    result.add(i);
+                }
+            }
+            int res = result.get((int) (Math.random() * 2));
+            if(colReady && rowReady){
+                doCalc(clients.get(res), combNum, rowIn, columnIn);
+                colReady = false;
+                rowReady = false;
+            }
+            if(combNum == 5){
+                combNum = 0;
+            }else{
+                combNum++;
+            }
+
+            if(checkedCell == 600){
+                checkedCell = 0;
+                MatrixHandler.printMatrix(round,0);
+                for (int i = 0; i < 4; i++){
+                    outputStreams.get(clients.get(i)).writeObject(0);
+                }
+                round++;
+            }
+        }
+    }
+
+    private void doCalc(Socket socket, int combNum, Row rowIn, Column columnIn) throws IOException, ClassNotFoundException {
+        ObjectOutputStream objectOutput = outputStreams.get(socket);
+        ObjectInputStream objectInput = inputStreams.get(socket);
+        objectOutput.writeObject(3);
+        objectOutput.writeObject(rowIn.row);
+        objectOutput.writeObject(columnIn.column);
+        int answer = (int) objectInput.readObject();
+        matrixHandler.setMatrix(round, combNum, rowIn.xPos, columnIn.yPos, answer);
+    }
+
+    public static void addCheckedCell(){
+        checkedCell++;
+    }
+    public static int getCheckedCell(){
+        return checkedCell;
+    }
+
+    private Column getColumn(Socket socket) throws IOException, ClassNotFoundException {
+        ObjectOutputStream objectOutput = outputStreams.get(socket);
+        ObjectInputStream objectInput = inputStreams.get(socket);
+        int line_col = (int)(Math.random()*10);
+        objectOutput.writeObject(2);
+        objectOutput.writeObject(line_col);
+
+        Column returnColumn = new Column((int) objectInput.readObject(),(int[]) objectInput.readObject());
+        return returnColumn;
+
+    }
+
+    private Row getRow(Socket socket) throws IOException, ClassNotFoundException {
+        ObjectOutputStream objectOutput = outputStreams.get(socket);
+        ObjectInputStream objectInput = inputStreams.get(socket);
+        int line_row = (int)(Math.random()*10);
+        objectOutput.writeObject(1);
+        objectOutput.writeObject(line_row);
+
+        Row returnRow = new Row((int) objectInput.readObject(),(int[]) objectInput.readObject());
+        return returnRow;
+    }
+
+    class Row{
+        int xPos;
+        int[] row;
+
+        public Row(int xPos, int[] row) {
+            this.xPos = xPos;
+            this.row = row;
+        }
+    }
+    class Column{
+        int yPos;
+        int[] column;
+
+        public Column(int yPos, int[] column) {
+            this.yPos = yPos;
+            this.column = column;
         }
     }
 }

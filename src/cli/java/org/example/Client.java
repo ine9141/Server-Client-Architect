@@ -3,6 +3,7 @@ package cli.java.org.example;
 import java.io.*;
 import java.net.ConnectException;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Scanner;
@@ -42,9 +43,8 @@ public class Client {
     public static void main(String[] args) throws IOException {
         Socket socket = null;
         try {
-            Scanner scanner = new Scanner(System.in);
             int[][] matrix = new int[10][10];
-            int sys_clock = 0;
+            reset(matrix);
             int mode;
             System.out.println("[서버 접속 대기중]");
             while (socket == null) {
@@ -53,7 +53,6 @@ public class Client {
                 } catch (ConnectException e) {
                 }
             }
-
             System.out.println("[서버 접속 성공]");
 
             ObjectOutputStream objectOutput = new ObjectOutputStream(socket.getOutputStream());
@@ -64,6 +63,8 @@ public class Client {
                     mode = (int) objectInput.readObject();
                 } catch(EOFException e){
                     continue;
+                }catch (SocketException e){
+                    continue;
                 }
 
                 //new round start
@@ -73,7 +74,6 @@ public class Client {
                 else if (mode == 1) {
                     int line = (int) objectInput.readObject();
                     int[] send_array = array("row", matrix, line);
-
                     objectOutput.writeObject(line);
                     objectOutput.writeObject(send_array);
 
