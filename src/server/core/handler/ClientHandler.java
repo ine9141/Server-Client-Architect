@@ -73,7 +73,6 @@ public class ClientHandler implements Runnable {//소켓 접속 때 마다 하�
             logHandler.clientLog("[Client" + clientNum + "] New Round 수행\n");
             LogHandler.serverLog("[Client" + clientNum + "] New Round 수행. Server Time : " + TimeHandler.getClientTime(clientNum) + "\n");
             while(checkedCell != 100) {
-                System.out.println("정신나갈 targetMatriexIndex = " + targetMatriexIndex); // targetMatrixIndex에 따른 병렬 동작 확인용
                 synchronized (lock){
                     if(workNum == 0){ // 작업 종류에 따른 분기
                         //차례대로 행 입력
@@ -224,7 +223,6 @@ public class ClientHandler implements Runnable {//소켓 접속 때 마다 하�
                     }
                 }
             }
-            System.out.println("경축! " + targetMatriexIndex +"번째 매트릭스 완성!");
 
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
