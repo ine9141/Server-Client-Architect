@@ -7,7 +7,8 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.Scanner;
 
-public class Client {
+public class Client extends Thread{
+
     public static final int MAX_row = 10;
     public static final int MAX_column = 10;
 
@@ -39,7 +40,9 @@ public class Client {
         return send_array;
     }
 
-    public static void main(String[] args) throws IOException {
+
+    @Override
+    public void run() {
         Socket socket = null;
         try {
             Scanner scanner = new Scanner(System.in);
@@ -62,7 +65,7 @@ public class Client {
             while (true) {
                 try{
                     mode = (int) objectInput.readObject();
-                } catch(EOFException e){
+                } catch(Exception e){
                     continue;
                 }
 
@@ -102,7 +105,16 @@ public class Client {
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         } finally {
-            Objects.requireNonNull(socket).close();
+            try {
+                socket.close();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
+    }
+
+    public static void main(String[] args) {
+        Client client = new Client();
+        client.start();
     }
 }

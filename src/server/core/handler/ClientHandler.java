@@ -115,7 +115,7 @@ public class ClientHandler implements Runnable {//소켓 접속 때 마다 하�
                                 System.out.println("행렬에 값 저장");
                                 int answer = (int) objectInput.readObject();
                                 matrix[xPos][yPos] = answer;
-                                matrixHandler.setMatrix(round,c,xPos,yPos,answer);
+                                MatrixHandler.setMatrix(round,c,xPos,yPos,answer);
 
 
                                 checkedCell++;
