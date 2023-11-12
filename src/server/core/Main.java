@@ -1,48 +1,40 @@
 package server.core;
+
 import server.core.handler.ClientHandler;
+import server.core.handler.CombinationHandler;
+import server.core.handler.MatrixHandler;
 
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.HashMap;
 
 public class Main {
-    public static void main(String[] args) {
-        Main hahaServer = new Main();
-        hahaServer.start();
+    public static void main(String[] args) throws IOException {
 
+        MatrixHandler matrixHandler = new MatrixHandler();
+        HashMap<Integer,Socket> clients = new HashMap<>();
+        int[][] comb = {{0, 1, 2, 3}, {0, 2, 1, 3}, {0, 3, 1, 2}, {1, 2, 0, 3}, {1, 3, 0, 2}, {2, 3, 0, 1}};
 
-    }
+        ServerSocket serverSocket = new ServerSocket(23921);
+        System.out.println("[Server] 서버 시작.");
 
-    public void start() {
-        ServerSocket serverSocket = null;
-        try {
-            serverSocket = new ServerSocket(23921);
-            System.out.println("[Server] 서버 시작.");
-
-            while (true) {
-                System.out.println("[Server] 클라이언트 연결 대기중...");
-                Socket socket = serverSocket.accept();
-                ClientList.addClient(socket);
-                System.out.println("[Server] " + socket.getRemoteSocketAddress().toString() + " 클라이언트 연결 완료.");
-                ClientHandler clientHandler = new ClientHandler(socket, serverSocket);
-                Thread thread = new Thread(clientHandler);
-                thread.start();
+        for(int i = 0; i < 4 ; i++) {
+            Socket socket = null;
+            while (socket == null) {
+                socket = serverSocket.accept();
             }
-
-        } catch (IOException e) {
-            // e.printStackTrace();
-        } finally {
-            //종료 로직
-            if (serverSocket != null) {
-                try {
-                    serverSocket.close();
-                    System.out.println("[Server] 서버 종료");
-                } catch (IOException e) {
-                    // e.printStackTrace();
-                }
-            }
-
+            System.out.println("[Server] " + socket.getRemoteSocketAddress().toString() + " 클라이언트 연결 완료.");
+            clients.put(i, socket);
         }
 
+        for(int round = 0; round < 1; round++){
+            for(int c = 0 ; c < 1 ; c++){
+                CombinationHandler combinationHandler = new CombinationHandler(clients.get(comb[c][0]),clients.get(comb[c][1]),clients.get(comb[c][2]),clients.get(comb[c][3]),serverSocket,round,c,matrixHandler);
+                Thread thread = new Thread(combinationHandler);
+                thread.start();
+            }
+        }
     }
+
 }
