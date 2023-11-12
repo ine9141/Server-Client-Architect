@@ -18,7 +18,7 @@ public class ClientHandler{//소켓 접속 때 마다 하나 생김
     private static int checkedCell = 0;
     private static int[] row = new int[10];
     private static int[] column = new int[10];
-    private static int round = 0;
+    private static int round = 1;
 
 
     public ClientHandler(MatrixHandler matrixHandler, HashMap<Integer,Socket> clients) throws IOException {
@@ -34,7 +34,7 @@ public class ClientHandler{//소켓 접속 때 마다 하나 생김
         int combNum = 0;
         boolean rowReady;
         boolean colReady;
-        while (round < 100){
+        while (round < 101){
             String[] comb = combSet[combNum];
             Row rowIn = null;
             Column columnIn = null;
