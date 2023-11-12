@@ -17,7 +17,7 @@ public class LogHandler {
     }
 
     public static void serverLog(String message){
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter("server.log", true))) {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter("server.log", false))) {
             bw.write(message);
         } catch (IOException e) {
             e.printStackTrace();

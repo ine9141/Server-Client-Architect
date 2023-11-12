@@ -8,10 +8,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 public class ClientHandler implements Runnable {//소켓 접속 때 마다 하나 생김
-
-    private Socket socket;
-    private ServerSocket serverSocket;
-    private MatrixHandler matrixHandler;
     private static int[][] matrix = new int[10][10];
     private static int checkedCell = 0;
     private static String[] role = new String[4];
@@ -27,13 +23,10 @@ public class ClientHandler implements Runnable {//소켓 접속 때 마다 하�
     private ObjectOutputStream objectOutput;
     private ObjectInputStream objectInput;
 
-    public ClientHandler(Socket socket, ServerSocket serverSocket, int clientNum, int round, int c, MatrixHandler matrixHandler,ObjectInputStream objectInputStream, ObjectOutputStream objectOutputStream) {
-        this.socket = socket;
-        this.serverSocket = serverSocket;
+    public ClientHandler(int clientNum, int round, int c, ObjectInputStream objectInputStream, ObjectOutputStream objectOutputStream) {
         this.clientNum = clientNum;
         this.round = round;
         this.c = c;
-        this.matrixHandler = matrixHandler;
         this.objectInput = objectInputStream;
         this.objectOutput = objectOutputStream;
 
@@ -79,10 +72,10 @@ public class ClientHandler implements Runnable {//소켓 접속 때 마다 하�
                 synchronized (lock){
                     if(clientNum == 1){
                         //열 입력
-                        objectOutput.writeObject(2);
                         int line_col;
                         if(col_flag != -1) line_col = col_flag;
                         else line_col = (int)(Math.random()*10);
+                        objectOutput.writeObject(2);
                         objectOutput.writeObject(line_col);
                         yPos = (int) objectInput.readObject();
                         column = (int[]) objectInput.readObject();
@@ -153,7 +146,6 @@ public class ClientHandler implements Runnable {//소켓 접속 때 마다 하�
                     }
                 }
             }
-
         } catch (ClassNotFoundException | IOException e) {
             throw new RuntimeException(e);
         }

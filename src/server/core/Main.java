@@ -33,14 +33,14 @@ public class Main {
         }
 
         for(int round = 0; round < 1; round++){
-            for(int c = 0 ; c < 2 ; c++){
+            for(int c = 1 ; c < 2 ; c++){
                 CombinationHandler combinationHandler = new CombinationHandler(
-                        clients[comb[c][0]], clients[comb[c][1]], clients[comb[c][2]], clients[comb[c][3]],
                         objectOutputStreams[comb[c][0]], objectOutputStreams[comb[c][1]], objectOutputStreams[comb[c][2]], objectOutputStreams[comb[c][3]],
                         objectInputStreams[comb[c][0]], objectInputStreams[comb[c][1]], objectInputStreams[comb[c][2]], objectInputStreams[comb[c][3]],
-                        serverSocket, round, c, matrixHandler
+                        round, c
                 );
                 new Thread(combinationHandler).start();
+
             }
         }
     }
