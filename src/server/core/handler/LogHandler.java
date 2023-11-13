@@ -5,20 +5,30 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 public class LogHandler {
-    private int clientNumber;
-    BufferedWriter bw;
-    public LogHandler(int clientNumber) throws IOException {
-        this.clientNumber = clientNumber;
-        bw = new BufferedWriter(new FileWriter("Client" + clientNumber + ".log",false));
-    }
+    public static void initFile() throws IOException {
+        FileWriter fw = new FileWriter("Server.log");
+        fw.write("");
+        fw.close();
 
-    public void clientLog(String message) throws IOException {
-        bw.write(message);
+        for(int i = 0; i < 4; i++){
+            String path = "Client" + i + ".log";
+            fw = new FileWriter(path);
+            fw.write("");
+            fw.close();
+        }
+    }
+    public static void clientLog(int clientNumber, String message){
+        String path = "Client" + clientNumber + ".log";
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(path, true))) {
+            bw.write(message);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public static void serverLog(String message){
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter("server.log", true))) {
-            bw.write(message);
+        try (BufferedWriter serverBw = new BufferedWriter(new FileWriter("Server.log", true))) {
+            serverBw.write(message);
         } catch (IOException e) {
             e.printStackTrace();
         }

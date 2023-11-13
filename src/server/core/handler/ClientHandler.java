@@ -4,12 +4,17 @@ import java.io.*;
 import java.net.Socket;
 import java.util.*;
 
+import static server.core.handler.LogHandler.*;
+import static server.core.handler.TimeHandler.*;
+
 public class ClientHandler extends Thread{ //소켓 접속 때 마다 하나 생김
 
     private MatrixHandler matrixHandler;
     private HashMap<Integer,Socket> clients;
     private HashMap<Socket,ObjectOutputStream> outputStreams;
     private HashMap<Socket,ObjectInputStream> inputStreams;
+    private int cNum;
+    private static boolean firstFinish = true;
 
 
     public static String[][] combSet = {{"row","col","calc","calc"}, {"col","row","calc","calc"}, {"calc","col","row","calc"},
@@ -18,8 +23,9 @@ public class ClientHandler extends Thread{ //소켓 접속 때 마다 하나 생
     private static int round = 0;
 
 
-    public ClientHandler(MatrixHandler matrixHandler){
+    public ClientHandler(MatrixHandler matrixHandler, int cNum){
         this.matrixHandler = matrixHandler;
+        this.cNum = cNum;
 
         SetupHandler setupHandler = SetupHandler.getInstance();
         System.out.println("ClientHandler - SetupHandler instance: " + setupHandler);
@@ -33,6 +39,11 @@ public class ClientHandler extends Thread{ //소켓 접속 때 마다 하나 생
         int combNum = 0;
         boolean rowReady;
         boolean colReady;
+        try {
+            outputStreams.get(clients.get(cNum)).writeObject(cNum);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         while (round < 100){
             String[] comb = combSet[combNum];
             Row rowIn = null;
@@ -43,7 +54,9 @@ public class ClientHandler extends Thread{ //소켓 접속 때 마다 하나 생
             for (int i = 0; i < 4; i++){
                 if(comb[i].equals("row")){
                     try {
+                        addTime();
                         rowIn = getRow(clients.get(i));
+                        serverLog(i + "번 클라이언트에 Get Row 명령\n");
                     } catch (IOException | ClassNotFoundException e) {
                         throw new RuntimeException(e);
                     }
@@ -52,7 +65,9 @@ public class ClientHandler extends Thread{ //소켓 접속 때 마다 하나 생
                 }
                 if(comb[i].equals("col")){
                     try {
+                        addTime();
                         columnIn = getColumn(clients.get(i));
+                        serverLog(i + "번 클라이언트에 Get Column 명령\n");
                     } catch (IOException | ClassNotFoundException e) {
                         throw new RuntimeException(e);
                     }
@@ -70,7 +85,9 @@ public class ClientHandler extends Thread{ //소켓 접속 때 마다 하나 생
             int res = result.get((int) (Math.random() * 2));
             if(colReady && rowReady){
                 try {
+                    addTime();
                     doCalc(clients.get(res), combNum, rowIn, columnIn);
+                    serverLog(res + "번 클라이언트에 Calculation 명령\n");
                 } catch (IOException | ClassNotFoundException e) {
                     throw new RuntimeException(e);
                 }
@@ -83,7 +100,13 @@ public class ClientHandler extends Thread{ //소켓 접속 때 마다 하나 생
 
             if(checkedCell == 600){
                 checkedCell = 0;
-                MatrixHandler.printMatrix(round,0);
+                serverLog(round + " 라운드 수행 시간 : " + getRoundTime() + "\n");
+                addRound();
+                try {
+                    MatrixHandler.printMatrix(round,0);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
                 for (int i = 0; i < 4; i++){
                     try {
                         outputStreams.get(clients.get(i)).writeObject(0);
@@ -93,6 +116,18 @@ public class ClientHandler extends Thread{ //소켓 접속 때 마다 하나 생
                 }
                 round++;
             }
+        }
+        if (firstFinish) {
+            for (int i = 0; i < 100; i++){
+                serverLog(i+1 + "번 라운드 소요시간 :" + getRoundTimeArr()[i] + "\n");
+            }
+            try {
+                MatrixHandler.printMatrixAtLog();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            serverLog("총 소요시간 : " + getTotalTime());
+            firstFinish = false;
         }
     }
 

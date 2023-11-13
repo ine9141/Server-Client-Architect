@@ -1,9 +1,6 @@
 package server.core;
 
-import server.core.handler.ClientHandler;
-import server.core.handler.MatrixHandler;
-import server.core.handler.SetupHandler;
-import server.core.handler.ThreadHandler;
+import server.core.handler.*;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -18,6 +15,8 @@ public class Main { //row col calc calc
         ServerSocket serverSocket = new ServerSocket(23921);
         System.out.println("[Server] 서버 시작.");
 
+        LogHandler.initFile();
+
         for(int i = 0; i < 4 ; i++) {
             Socket socket = null;
             while (socket == null) {
@@ -27,7 +26,7 @@ public class Main { //row col calc calc
             ThreadHandler threadHandler = new ThreadHandler(i,socket);
             threadHandler.run();
             Thread.sleep(50);
-            ClientHandler clientHandlerThread = new ClientHandler(new MatrixHandler());
+            ClientHandler clientHandlerThread = new ClientHandler(new MatrixHandler(), i);
             clientHandlerThread.start();
             Thread.sleep(50);
         }

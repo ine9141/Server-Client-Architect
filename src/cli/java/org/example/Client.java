@@ -1,5 +1,7 @@
 package cli.java.org.example;
 
+import server.core.handler.LogHandler;
+
 import java.io.*;
 import java.net.ConnectException;
 import java.net.Socket;
@@ -7,6 +9,8 @@ import java.net.SocketException;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Scanner;
+
+import static server.core.handler.LogHandler.*;
 
 public class Client extends Thread{
 
@@ -61,6 +65,8 @@ public class Client extends Thread{
             ObjectOutputStream objectOutput = new ObjectOutputStream(socket.getOutputStream());
             ObjectInputStream objectInput = new ObjectInputStream(socket.getInputStream());
 
+            int clientNumber = (int) objectInput.readObject();
+
             while (true) {
                 try{
                     mode = (int) objectInput.readObject();
@@ -70,7 +76,16 @@ public class Client extends Thread{
 
                 //new round start
                 //1. 배열 초기화
-                if (mode == 0) reset(matrix);
+                if (mode == 0) {
+                    reset(matrix);
+                    clientLog(clientNumber,"새로운 행렬 생성\n");
+                    for (int i = 0; i < 10; i++){
+                        for (int j = 0; j < 10; j++){
+                            clientLog(clientNumber, "[" + matrix[i][j] + "] ");
+                        }
+                        clientLog(clientNumber, "\n");
+                    }
+                }
 
                 else if (mode == 1) {
                     int line = (int) objectInput.readObject();
@@ -78,6 +93,7 @@ public class Client extends Thread{
                     objectOutput.writeObject(line);
                     objectOutput.writeObject(send_array);
 
+                    clientLog(clientNumber, "Get Row 수행. Line :" + line + "\n");
                     System.out.println("line(row) : " + line);
                     System.out.println("array : " + Arrays.toString(send_array));
 
@@ -88,11 +104,13 @@ public class Client extends Thread{
                     objectOutput.writeObject(line);
                     objectOutput.writeObject(send_array);
 
+                    clientLog(clientNumber, "Get Column 수행. Line :" + line + "\n");
                     System.out.println("line(col) : " + line);
                     System.out.println("array : " + Arrays.toString(send_array));
 
                 } else if (mode == 3) {
                     int answer = calc((int[]) objectInput.readObject(), (int[]) objectInput.readObject());
+                    clientLog(clientNumber, "Calculation 수행 결과. : " + answer + "\n");
                     objectOutput.writeObject(answer);
                     System.out.println("answer : "+ answer );
                 }
