@@ -97,13 +97,17 @@ public class ClientHandler extends Thread{ //소켓 접속 때 마다 하나 생
     }
 
     private void doCalc(Socket socket, int combNum, Row rowIn, Column columnIn) throws IOException, ClassNotFoundException {
-        ObjectOutputStream objectOutput = outputStreams.get(socket);
-        ObjectInputStream objectInput = inputStreams.get(socket);
-        objectOutput.writeObject(3);
-        objectOutput.writeObject(rowIn.row);
-        objectOutput.writeObject(columnIn.column);
-        int answer = (int) objectInput.readObject();
-        matrixHandler.setMatrix(round, combNum, rowIn.xPos, columnIn.yPos, answer);
+        synchronized (outputStreams.get(socket)) {
+            synchronized (inputStreams.get(socket)){
+                ObjectOutputStream objectOutput = outputStreams.get(socket);
+                ObjectInputStream objectInput = inputStreams.get(socket);
+                objectOutput.writeObject(3);
+                objectOutput.writeObject(rowIn.row);
+                objectOutput.writeObject(columnIn.column);
+                int answer = (int) objectInput.readObject();
+                matrixHandler.setMatrix(round, combNum, rowIn.xPos, columnIn.yPos, answer);
+            }
+        }
     }
 
     public static void addCheckedCell(){
@@ -111,23 +115,29 @@ public class ClientHandler extends Thread{ //소켓 접속 때 마다 하나 생
     }
 
     private Column getColumn(Socket socket) throws IOException, ClassNotFoundException {
-        ObjectOutputStream objectOutput = outputStreams.get(socket);
-        ObjectInputStream objectInput = inputStreams.get(socket);
-        int line_col = (int)(Math.random()*10);
-        objectOutput.writeObject(2);
-        objectOutput.writeObject(line_col);
-
-        return new Column((int) objectInput.readObject(),(int[]) objectInput.readObject());
+        synchronized (outputStreams.get(socket)) {
+            synchronized (inputStreams.get(socket)) {
+                ObjectOutputStream objectOutput = outputStreams.get(socket);
+                ObjectInputStream objectInput = inputStreams.get(socket);
+                int line_col = (int) (Math.random() * 10);
+                objectOutput.writeObject(2);
+                objectOutput.writeObject(line_col);
+                return new Column((int) objectInput.readObject(), (int[]) objectInput.readObject());
+            }
+        }
     }
 
     private Row getRow(Socket socket) throws IOException, ClassNotFoundException {
-        ObjectOutputStream objectOutput = outputStreams.get(socket);
-        ObjectInputStream objectInput = inputStreams.get(socket);
-        int line_row = (int)(Math.random()*10);
-        objectOutput.writeObject(1);
-        objectOutput.writeObject(line_row);
-
-        return new Row((int) objectInput.readObject(),(int[]) objectInput.readObject());
+        synchronized (outputStreams.get(socket)) {
+            synchronized (inputStreams.get(socket)) {
+                ObjectOutputStream objectOutput = outputStreams.get(socket);
+                ObjectInputStream objectInput = inputStreams.get(socket);
+                int line_row = (int) (Math.random() * 10);
+                objectOutput.writeObject(1);
+                objectOutput.writeObject(line_row);
+                return new Row((int) objectInput.readObject(), (int[]) objectInput.readObject());
+            }
+        }
     }
 
     class Row{
