@@ -1,16 +1,11 @@
 package cli.java.org.example;
 
-import server.core.handler.LogHandler;
-
 import java.io.*;
 import java.net.ConnectException;
 import java.net.Socket;
-import java.net.SocketException;
 import java.util.Arrays;
-import java.util.Objects;
-import java.util.Scanner;
 
-import static server.core.handler.LogHandler.*;
+import static cli.java.org.example.ClientLogHandler.*;
 
 public class Client extends Thread{
 
@@ -66,6 +61,7 @@ public class Client extends Thread{
             ObjectInputStream objectInput = new ObjectInputStream(socket.getInputStream());
 
             int clientNumber = (int) objectInput.readObject();
+            initFile(clientNumber);
 
             while (true) {
                 try{

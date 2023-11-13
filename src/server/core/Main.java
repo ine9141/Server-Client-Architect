@@ -15,7 +15,7 @@ public class Main { //row col calc calc
         ServerSocket serverSocket = new ServerSocket(23921);
         System.out.println("[Server] 서버 시작.");
 
-        LogHandler.initFile();
+        ServerLogHandler.initFile();
 
         for(int i = 0; i < 4 ; i++) {
             Socket socket = null;

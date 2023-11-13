@@ -2,7 +2,7 @@ package server.core.handler;
 
 import java.io.IOException;
 
-import static server.core.handler.LogHandler.*;
+import static server.core.handler.ServerLogHandler.*;
 
 public class MatrixHandler {
     private static int[][][][] matrix = new int[100][6][10][10];

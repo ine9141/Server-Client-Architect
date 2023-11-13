@@ -4,7 +4,7 @@ import java.io.*;
 import java.net.Socket;
 import java.util.*;
 
-import static server.core.handler.LogHandler.*;
+import static server.core.handler.ServerLogHandler.*;
 import static server.core.handler.TimeHandler.*;
 
 public class ClientHandler extends Thread{ //소켓 접속 때 마다 하나 생김
