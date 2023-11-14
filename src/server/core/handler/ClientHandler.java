@@ -118,9 +118,7 @@ public class ClientHandler extends Thread{ //소켓 접속 때 마다 하나 생
             }
         }
         if (firstFinish) {
-            for (int i = 0; i < 100; i++){
-                serverLog(i+1 + "번 라운드 소요시간 :" + getRoundTimeArr()[i] + "\n");
-            }
+            TimeHandler.printRound();
             try {
                 MatrixHandler.printMatrixAtLog();
             } catch (IOException e) {
@@ -134,6 +132,9 @@ public class ClientHandler extends Thread{ //소켓 접속 때 마다 하나 생
     private void doCalc(Socket socket, int combNum, Row rowIn, Column columnIn) throws IOException, ClassNotFoundException {
         synchronized (outputStreams.get(socket)) {
             synchronized (inputStreams.get(socket)){
+                if(MatrixHandler.getMatrix(round,combNum,rowIn.xPos,columnIn.yPos) != -1){
+                    return;
+                }
                 ObjectOutputStream objectOutput = outputStreams.get(socket);
                 ObjectInputStream objectInput = inputStreams.get(socket);
                 objectOutput.writeObject(3);

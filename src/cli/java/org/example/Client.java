@@ -52,6 +52,7 @@ public class Client extends Thread{
             while (socket == null) {
                 try {
                     socket = new Socket("localhost", 23921);
+//                    socket = new Socket("152.67.198.30", 23921);
                 } catch (ConnectException e) {
                 }
             }

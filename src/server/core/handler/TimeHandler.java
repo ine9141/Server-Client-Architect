@@ -17,6 +17,12 @@ public class TimeHandler {
         roundTime = 0;
     }
 
+    public static void printRound(){
+    for (int i = 0; i < 100; i++){
+        ServerLogHandler.serverLog(i + " round time : [" + roundTimeArr[i] + "] \n");
+    }
+    ServerLogHandler.serverLog("\n");
+    }
     public static int getRound() {
         return round;
     }
